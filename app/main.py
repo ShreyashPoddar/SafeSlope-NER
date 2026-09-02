@@ -2,7 +2,7 @@ import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
-from app.routers import telemetry, risk, reports, villages
+from app.routers import telemetry, risk, reports, villages, auth
 
 app = FastAPI(title="ResiliNER API")
 
@@ -50,3 +50,4 @@ app.include_router(telemetry.router)
 app.include_router(risk.router)
 app.include_router(reports.router)
 app.include_router(villages.router)
+app.include_router(auth.router)

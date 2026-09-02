@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.models.schemas import IsolationResult, VillagePayload
 from app.database import database
-from app.auth import verify_api_key
+from app.auth import verify_api_key, get_current_user
 
 router = APIRouter(tags=["villages"])
 
@@ -18,7 +18,7 @@ async def create_village(payload: VillagePayload):
     return {"id": row["id"], "village_name": payload.village_name}
 
 
-@router.get("/villages")
+@router.get("/villages", dependencies=[Depends(get_current_user)])
 async def list_villages():
     rows = await database.fetch_all(
         "SELECT id, village_name, population FROM villages ORDER BY id"
@@ -43,7 +43,7 @@ async def receive_isolation_result(result: IsolationResult):
     }
 
 
-@router.get("/villages/isolated")
+@router.get("/villages/isolated", dependencies=[Depends(get_current_user)])
 async def get_isolated_villages():
     query = """
         SELECT v.village_name, v.population, ie.zone_id, ie.detected_at

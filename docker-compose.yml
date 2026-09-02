@@ -8,6 +8,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       SERVICE_API_KEY: change-this-shared-key
+      GOOGLE_CLIENT_ID: your-google-client-id.apps.googleusercontent.com
+      JWT_SECRET: change-this-jwt-secret-too
     depends_on:
       db:
         condition: service_healthy

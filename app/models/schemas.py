@@ -51,3 +51,8 @@ class VillagePayload(BaseModel):
 
 class RiskZonePayload(BaseModel):
     zone_name: str
+
+
+# --- Google Sign-In: what the dashboard sends after a user logs in ---
+class GoogleLoginPayload(BaseModel):
+    id_token: str

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.models.schemas import TelemetryPayload
 from app.database import database
-from app.auth import verify_api_key
+from app.auth import verify_api_key, get_current_user
 
 router = APIRouter(prefix="/telemetry", tags=["telemetry"])
 
@@ -30,7 +30,7 @@ async def receive_telemetry(payload: TelemetryPayload):
     return {"status": "received", "sensor_id": payload.sensor_id}
 
 
-@router.get("/sensors")
+@router.get("/sensors", dependencies=[Depends(get_current_user)])
 async def list_sensors():
     """Note: this is registered before /{sensor_id} on purpose — a static
     path must come before a dynamic one, or FastAPI would treat the word
@@ -39,7 +39,7 @@ async def list_sensors():
     return [dict(r) for r in rows]
 
 
-@router.get("/{sensor_id}")
+@router.get("/{sensor_id}", dependencies=[Depends(get_current_user)])
 async def get_sensor_history(sensor_id: str):
     query = """
         SELECT tilt_delta, soil_moisture, recorded_at

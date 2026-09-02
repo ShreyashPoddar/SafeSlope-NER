@@ -5,3 +5,5 @@ asyncpg
 redis
 pydantic
 python-multipart
+pyjwt
+google-auth

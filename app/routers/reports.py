@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from app.models.schemas import ReportPayload
 from app.database import database
-from app.auth import verify_api_key
+from app.auth import verify_api_key, get_current_user
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -16,7 +16,7 @@ async def receive_report(payload: ReportPayload):
     return {"status": "received", "classification": payload.classification}
 
 
-@router.get("/")
+@router.get("/", dependencies=[Depends(get_current_user)])
 async def list_reports():
     query = """
         SELECT id, classification, confidence_pct, image_url, verified, submitted_at

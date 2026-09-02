@@ -49,6 +49,16 @@ CREATE TABLE reports (
     submitted_at TIMESTAMP DEFAULT now()
 );
 
+-- People who've signed in with Google — DDMA officials using the dashboard
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    google_sub TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    name TEXT,
+    role TEXT DEFAULT 'viewer',  -- 'viewer' or 'admin'
+    created_at TIMESTAMP DEFAULT now()
+);
+
 -- seed data so /risk-state returns something real on first run
 INSERT INTO risk_zones (zone_name, current_risk, ml_risk_pct, ml_confidence_pct)
 VALUES ('zone_1', 'LOW', 12, 60), ('zone_2', 'MODERATE', 55, 68);

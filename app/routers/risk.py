@@ -4,7 +4,7 @@ from app.models.schemas import RulesResult, MLResult, RiskZonePayload
 from app.database import database
 from app.redis_client import redis_client
 from app.services.risk_engine import resolve_risk
-from app.auth import verify_api_key
+from app.auth import verify_api_key, get_current_user
 
 router = APIRouter(tags=["risk"])
 
@@ -26,7 +26,7 @@ async def create_risk_zone(payload: RiskZonePayload):
     return dict(row)
 
 
-@router.get("/risk-zones")
+@router.get("/risk-zones", dependencies=[Depends(get_current_user)])
 async def list_risk_zones():
     rows = await database.fetch_all(
         "SELECT id, zone_name, current_risk, ml_risk_pct, ml_confidence_pct FROM risk_zones ORDER BY id"
@@ -97,7 +97,7 @@ async def _refresh_cache():
         pass  # cache write failed — Postgres still has the real data
 
 
-@router.get("/risk-state")
+@router.get("/risk-state", dependencies=[Depends(get_current_user)])
 async def get_risk_state():
     """Member 5's dashboard polls this. Redis first, Postgres fallback."""
     try:
