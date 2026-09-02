@@ -1,11 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.models.schemas import IsolationResult, VillagePayload
 from app.database import database
+from app.auth import verify_api_key
 
 router = APIRouter(tags=["villages"])
 
 
-@router.post("/villages")
+@router.post("/villages", dependencies=[Depends(verify_api_key)])
 async def create_village(payload: VillagePayload):
     """Register a village so Member 3's isolation twin has real data to link to."""
     query = """
@@ -25,7 +26,7 @@ async def list_villages():
     return [dict(r) for r in rows]
 
 
-@router.post("/isolation-result")
+@router.post("/isolation-result", dependencies=[Depends(verify_api_key)])
 async def receive_isolation_result(result: IsolationResult):
     """
     Member 3 posts here after the NetworkX graph traversal determines

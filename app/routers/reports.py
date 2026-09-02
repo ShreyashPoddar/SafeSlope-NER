@@ -1,11 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.models.schemas import ReportPayload
 from app.database import database
+from app.auth import verify_api_key
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 
-@router.post("/")
+@router.post("/", dependencies=[Depends(verify_api_key)])
 async def receive_report(payload: ReportPayload):
     query = """
         INSERT INTO reports (location, classification, confidence_pct, image_url, verified)

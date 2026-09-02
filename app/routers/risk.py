@@ -1,16 +1,17 @@
 import json
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.models.schemas import RulesResult, MLResult, RiskZonePayload
 from app.database import database
 from app.redis_client import redis_client
 from app.services.risk_engine import resolve_risk
+from app.auth import verify_api_key
 
 router = APIRouter(tags=["risk"])
 
 CACHE_KEY = "risk_state_all"
 
 
-@router.post("/risk-zones")
+@router.post("/risk-zones", dependencies=[Depends(verify_api_key)])
 async def create_risk_zone(payload: RiskZonePayload):
     """Register a zone (e.g. a road segment) so Members 2 and 3 have a
     real zone_id to post their results against — the seed data only
@@ -33,14 +34,14 @@ async def list_risk_zones():
     return [dict(r) for r in rows]
 
 
-@router.post("/rules-result")
+@router.post("/rules-result", dependencies=[Depends(verify_api_key)])
 async def receive_rules_result(result: RulesResult):
     """Member 2 posts here after evaluating the physics threshold."""
     await _update_zone(result.zone_id, physics_risk=result.risk_level)
     return {"status": "ok"}
 
 
-@router.post("/ml-result")
+@router.post("/ml-result", dependencies=[Depends(verify_api_key)])
 async def receive_ml_result(result: MLResult):
     """Member 3 posts here after their XGBoost model scores a zone."""
     await _update_zone(

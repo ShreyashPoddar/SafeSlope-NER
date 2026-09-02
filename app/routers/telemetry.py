@@ -1,11 +1,12 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.models.schemas import TelemetryPayload
 from app.database import database
+from app.auth import verify_api_key
 
 router = APIRouter(prefix="/telemetry", tags=["telemetry"])
 
 
-@router.post("/")
+@router.post("/", dependencies=[Depends(verify_api_key)])
 async def receive_telemetry(payload: TelemetryPayload):
     # Keep the sensor's known location up to date (PostGIS point)
     upsert_sensor = """

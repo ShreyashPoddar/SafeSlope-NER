@@ -7,6 +7,7 @@ services:
       DATABASE_URL: postgresql://resiliner_user:resiliner_pass@db:5432/resiliner
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      SERVICE_API_KEY: change-this-shared-key
     depends_on:
       db:
         condition: service_healthy
