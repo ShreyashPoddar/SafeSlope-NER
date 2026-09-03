@@ -9,6 +9,13 @@ class TelemetryPayload(BaseModel):
     lng: float
     tilt_delta: float
     soil_moisture: float
+    risk_state: Optional[str] = None
+    trigger_cause: Optional[str] = None
+    pitch_deg: Optional[float] = None
+    roll_deg: Optional[float] = None
+    pore_pressure_kpa: Optional[float] = None
+    packet_sequence_id: Optional[int] = None
+    mpu_ok: Optional[bool] = None
 
 
 # --- Member 2 (Geospatial/Rules) sends this back ---

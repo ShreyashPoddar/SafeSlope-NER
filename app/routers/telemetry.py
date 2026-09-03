@@ -20,8 +20,12 @@ async def receive_telemetry(payload: TelemetryPayload):
 
     # Store the actual reading
     insert_reading = """
-        INSERT INTO telemetry_readings (sensor_id, tilt_delta, soil_moisture)
-        VALUES (:sensor_id, :tilt_delta, :soil_moisture)
+        INSERT INTO telemetry_readings
+            (sensor_id, tilt_delta, soil_moisture, risk_state, trigger_cause,
+             pitch_deg, roll_deg, pore_pressure_kpa, packet_sequence_id, mpu_ok)
+        VALUES
+            (:sensor_id, :tilt_delta, :soil_moisture, :risk_state, :trigger_cause,
+             :pitch_deg, :roll_deg, :pore_pressure_kpa, :packet_sequence_id, :mpu_ok)
     """
     await database.execute(
         insert_reading, payload.model_dump(exclude={"lat", "lng"})
@@ -42,7 +46,9 @@ async def list_sensors():
 @router.get("/{sensor_id}", dependencies=[Depends(get_current_user)])
 async def get_sensor_history(sensor_id: str):
     query = """
-        SELECT tilt_delta, soil_moisture, recorded_at
+        SELECT tilt_delta, soil_moisture, risk_state, trigger_cause,
+               pitch_deg, roll_deg, pore_pressure_kpa, packet_sequence_id,
+               mpu_ok, recorded_at
         FROM telemetry_readings
         WHERE sensor_id = :sensor_id
         ORDER BY recorded_at DESC

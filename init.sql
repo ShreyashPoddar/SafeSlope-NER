@@ -11,6 +11,13 @@ CREATE TABLE telemetry_readings (
     sensor_id TEXT REFERENCES sensors(sensor_id),
     tilt_delta FLOAT,
     soil_moisture FLOAT,
+    risk_state TEXT,
+    trigger_cause TEXT,
+    pitch_deg FLOAT,
+    roll_deg FLOAT,
+    pore_pressure_kpa FLOAT,
+    packet_sequence_id INT,
+    mpu_ok BOOLEAN,
     recorded_at TIMESTAMP DEFAULT now()
 );
 
