@@ -7,11 +7,12 @@ services:
       DATABASE_URL: ${DATABASE_URL:-postgresql://resiliner_user:resiliner_pass@db:5432/resiliner}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      SERVICE_API_KEY: change-this-shared-key
-      GOOGLE_CLIENT_ID: your-google-client-id.apps.googleusercontent.com
-      GITHUB_CLIENT_ID: Ov23liVqAH6TenVBHELD
-      GITHUB_CLIENT_SECRET: 1b4ead6580bf7af50c5a6851042dd0a02848269a
-      JWT_SECRET: change-this-jwt-secret-too
+      SERVICE_API_KEY: ${SERVICE_API_KEY:-dev-only-change-me}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      FRONTEND_URL: ${FRONTEND_URL:-}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-too}
     depends_on:
       db:
         condition: service_healthy

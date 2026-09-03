@@ -17,6 +17,10 @@ GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET", "")
 GITHUB_REDIRECT_URI = os.environ.get(
     "GITHUB_REDIRECT_URI", "http://localhost:8000/auth/github/callback"
 )
+# Where the dashboard actually lives. If set, the callback redirects the
+# browser back here with the token attached, instead of dumping raw JSON
+# at the backend's own URL — which is what a real frontend needs.
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "")
 
 
 @router.post("/google")
@@ -91,13 +95,30 @@ async def github_login():
 
 
 @router.get("/github/callback")
-async def github_callback(code: str):
+async def github_callback(code: str = None, error: str = None):
     """
     GitHub redirects back here with a one-time code after someone approves
     the login. We exchange that code for an access token, fetch their
-    profile, create/find the user, and hand back a session token — same
-    shape as the Google flow.
+    profile, create/find the user, and issue a session token.
+
+    If FRONTEND_URL is set, we redirect the browser back to the dashboard
+    with the token attached (?token=...), so the login flow actually
+    returns the user to the app instead of stranding them on the backend.
+    If it's not set, we fall back to returning raw JSON — useful for
+    testing the flow directly without a frontend running yet.
     """
+    if error:
+        if FRONTEND_URL:
+            return RedirectResponse(f"{FRONTEND_URL}/auth/callback?error={error}")
+        raise HTTPException(
+            status_code=401, detail=f"GitHub login was not completed: {error}"
+        )
+
+    if not code:
+        raise HTTPException(
+            status_code=400, detail="Missing authorization code from GitHub"
+        )
+
     if not GITHUB_CLIENT_ID or not GITHUB_CLIENT_SECRET:
         raise HTTPException(
             status_code=500,
@@ -117,6 +138,10 @@ async def github_callback(code: str):
         token_data = token_resp.json()
         access_token = token_data.get("access_token")
         if not access_token:
+            if FRONTEND_URL:
+                return RedirectResponse(
+                    f"{FRONTEND_URL}/auth/callback?error=github_token_exchange_failed"
+                )
             raise HTTPException(status_code=401, detail="GitHub login failed")
 
         user_resp = await client.get(
@@ -154,6 +179,10 @@ async def github_callback(code: str):
         )
 
     token = create_session_token(dict(user))
+
+    if FRONTEND_URL:
+        return RedirectResponse(f"{FRONTEND_URL}/auth/callback?token={token}")
+
     return {
         "access_token": token,
         "token_type": "bearer",
