@@ -1,0 +1,1504 @@
+====================================================================================================
+               SAFESLOPE-NER : UNIFIED COMPUTATIONAL BACKEND MASTER PLAN
+                     & ENGINEERING SPECIFICATION (VERSION 3.0.0 - PRODUCTION READY)
+        Operational Multi-Tiered AI Decision Support System (SIH26001 - MDoNER)
+====================================================================================================
+Document Version  : 3.0.0 (Institutional Production & Field-Hardened Synthesis)
+Target Platform   : Central Distributed Computational Backend & Edge Ingestion Mesh
+Target Deployment : Hybrid On-Premise / Laptop Workstation / MeghRaj (NIC Cloud) Stack
+Author / Context  : SafeSlope-NER Core Engineering Architecture
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+TABLE OF CONTENTS
+----------------------------------------------------------------------------------------------------
+1. EXECUTIVE ARCHITECTURAL VISION & OPERATIONAL SCOPE
+2. COMPLETE INGESTION DATA DICTIONARY & MULTIMODAL SIGNALS (ALL 10 MODULES)
+   2.1. In-Situ Edge Sensing, Kinematics & Subsurface Telemetry
+   2.2. Remote Sensing, Satellite Earth Observation & Aerial Profiling
+   2.3. Opportunistic, Distributed & Alternative Ground Sensing
+   2.4. Meteorology, Hydrology & Regional Geological Baselines
+   2.5. Edge Intelligence, Reliability & Resilient Communications
+   2.6. Predictive Modeling, Geotechnical Engines & Analytics
+   2.7. Physical Prevention, Structural Mitigation & Engineering Interventions
+   2.8. Actionable Governance, Infrastructure Control & Automated Logistics
+   2.9. Human Impact, Last-Mile Warnings & Field Operations
+   2.10. Post-Disaster Triage, Recovery & Accountability
+3. EDGE WIRE PROTOCOL, INGESTION SECURITY & GATEWAY BATCHING
+   3.1. Ultra-Low-Bandwidth 20-Byte Binary Wire Protocol (Sub-GHz LoRa)
+   3.2. LoRa Concentrator Gateway Binary Batch Endpoint (POST /telemetry/binary-batch)
+   3.3. Node Clock Drift & Epoch Anchoring Protocol
+   3.4. Gateway Security, HMAC-SHA256 Authentication & Anti-Poisoning Clamping
+   3.5. Ingestion Backpressure & Dead-Letter Queue (DLQ) Quarantine
+4. RESILIENT EDGE-CLOUD CONNECTIVITY & OFFLINE ARCHITECTURE
+   4.1. Edge Gateway Store-and-Forward Engine (SQLite WAL Circular Buffer)
+   4.2. Out-of-Order Time-Shift Invariant Rules (Suppressing Retroactive Alarms)
+   4.3. Government API Circuit Breakers (IMD / MOSDAC / NCS 3-Tier Fallback)
+5. HIGH-PERFORMANCE COMPUTATIONAL TOPOLOGY & FEATURE SERVING
+   5.1. Master System Topology Diagram
+   5.2. Dual-Profile Runtime Deployment Matrix (Cloud GPU vs. Laptop/CPU Demo)
+   5.3. Corridor Masking & Uber H3 Hexagonal Binning (Resolutions 9 & 10)
+   5.4. Zero-Copy Redis Online Feature Store Contract (< 0.8 ms Pipeline Reads)
+   5.5. Dynamic Mapbox Vector Tile (MVT) Binary Protocol Buffer Streaming
+   5.6. On-Premise RAG Pipeline & Semantic Knowledge Retrieval (vLLM / Ollama / pgvector)
+6. END-TO-END COMPUTATIONAL PIPELINE (THE 7 PRODUCTION STAGES)
+   6.1. Stage 1: Multi-Rate Spatio-Temporal Ingestion & Grid Harmonization
+   6.2. Stage 2: Mechanistic Geotechnical Physics Solver & Empirical Tripping
+   6.3. Stage 3: Multi-Model Ensemble Stacking, Topological GNN & PINN
+   6.4. Stage 4: Uncertainty Quantification (Spatial Conformal) & Explainability (TreeSHAP)
+   6.5. Stage 5: Kinematic Runout & Debris Impact Modeling (FNO Surrogate / Flow-R / DoD)
+   6.6. Stage 6: The Isolation-Impact Twin & Supply Depletion Engine
+   6.7. Stage 7: Autonomous Edge Actuation, Governance & Cryptographic Ledger
+7. FALSE-ALARM SUPPRESSION, COLD-START & TRAINING RELIABILITY
+   7.1. Anti-"Cry Wolf" Hysteresis & Sustained Plastic Deformation Verification (8-Second Window)
+   7.2. Day-Zero Cold-Start Protocol (14-Day Sensor Burn-In & Ambient Quiet-State Calibration)
+   7.3. Spatial Block Cross-Validation (2 km Buffer) & Anti-Leakage Protocol
+   7.4. Hierarchical Model Degradation Matrix (Tier 1 to Tier 4 Operational Fallback)
+   7.5. Active Learning & Sensor Drift Tracking (Wasserstein Distance / PSI)
+8. ADMINISTRATIVE GOVERNANCE, RBAC & LEGAL COMPLIANCE
+   8.1. Local Government Directory (LGD) Administrative Scoping
+   8.2. Disaster Management Act 2005 (Section 34) Human-in-the-Loop (HITL) Workflow
+   8.3. Role-Based Access Control (RBAC: Public, Volunteer, Operator, Magistrate)
+   8.4. NDMA SACHET (ITU-T X.1303 CAP) XML Schema (XSD) Validation
+   8.5. Cryptographic SHA-256 State Chain & Audit Ledger Specifications
+9. PRODUCTION DATABASE SCHEMAS & STORED PROCEDURES (POSTGRESQL 16 + POSTGIS + TIMESCALEDB)
+   9.1. Database Configuration & Core Relational / Spatial Tables (init.sql)
+   9.2. TimescaleDB Compression Policies & Hypertable Retention
+   9.3. Dynamic PostGIS MVT Generation Stored Procedure
+10. IMPLEMENTATION ROADMAP, SIMULATION HARNESS & DIVISION OF LABOUR
+   10.1. Member 2 vs. Member 3 Responsibility & Handoff Matrix
+   10.2. Phase-Wise Sprint Plan (Sprint 1 to Sprint 5)
+   10.3. 1-Click Crisis Disaster Simulation Harness (POST /simulation/trigger-crisis)
+   10.4. Synthetic Chaos, Fault Injection & Invariant Test Suite
+11. PERFORMANCE & LATENCY SLA MATRIX (BASELINE VS. PRODUCTION UPGRADE)
+12. CODEBASE DIRECTORY STRUCTURE & MODULE ALLOCATION
+====================================================================================================
+
+
+====================================================================================================
+1. EXECUTIVE ARCHITECTURAL VISION & OPERATIONAL SCOPE
+====================================================================================================
+SafeSlope-NER is an operational, multi-tiered AI Decision Support System (DSS) engineered specifically 
+for the Ministry of Development of North Eastern Region (MDoNER) to solve Problem Statement SIH26001.
+
+Rather than relying on retrospective disaster mapping or static regional susceptibility indices, 
+SafeSlope-NER operates as an active, continuous, 6- to 72-hour forward-looking predictive engine.
+
+The computational backend satisfies five foundational operational criteria:
+
+1. Multi-Scale Spatial Synthesis:
+   Unifies macro satellite observations (Sentinel-1, Sentinel-2, NISAR), meso-scale meteorology 
+   (IMD, MOSDAC, GPM), opportunistic telemetry (distributed fiber sensing, vehicle fleet telematics), 
+   and localized micro-scale edge sensing (ESP32-S3 sensor clusters, RTK-GNSS, geophones).
+
+2. Heterogeneous Physics & Multi-Model Ensemble:
+   Pairs mechanistic unsaturated soil mechanics (van Genuchten soil-water retention curves, modified 
+   Mohr-Coulomb Factor of Safety, empirical rainfall thresholds) with an advanced multi-algorithm 
+   ensemble (CatBoost, LightGBM, XGBoost, TabNet, Spatio-Temporal Graph WaveNet, and Physics-Informed 
+   Neural Networks), governed by strict deterministic physics safety floors.
+
+3. The Isolation-Impact Twin:
+   Converts geotechnical failure envelopes into actionable human impact metrics by projecting kinematic 
+   debris runout over dynamic transportation graphs (Rustworkx/NetworkX), demographic census grids 
+   (WorldPop scaled by live FASTag vehicle counts), and essential Public Distribution System (PDS) 
+   warehouse inventories.
+
+4. Legal Compliance & Statutory Authority (DMA 2005, Section 34):
+   Enforces a strict Human-in-the-Loop (HITL) administrative workflow. Under Indian disaster management 
+   statutes, automated systems cannot order mandatory evacuations. SafeSlope-NER prepares pre-filled legal 
+   orders for 1-click authorization by the designated District Magistrate (DM) / DDMA Chairperson, backed by 
+   cryptographic SHA-256 audit chaining and ITU-T X.1303 CAP XML cell broadcast generation.
+
+5. Field-Hardened Resilience:
+   Operates seamlessly under extreme monsoon conditions: 20-byte packed binary LoRa wire protocols, 
+   offline store-and-forward SQLite gateway caching, government API circuit breakers, anti-cry-wolf 
+   vibration rejection, and day-zero cold-start burn-in auto-calibration.
+
+
+====================================================================================================
+2. COMPLETE INGESTION DATA DICTIONARY & MULTIMODAL SIGNALS (ALL 10 MODULES)
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+2.1. IN-SITU EDGE SENSING, KINEMATICS & SUBSURFACE TELEMETRY
+----------------------------------------------------------------------------------------------------
+* Surface Tilt & Dynamic Motion (MPU6050 / ADXL345):
+  - Raw Tri-Axial Acceleration (ax, ay, az): Orthogonal acceleration in g or m/s^2 across 3 axes.
+  - Raw Angular Velocity (wx, wy, wz): Dynamic rotational velocity in deg/s.
+  - Tilt Angles (Pitch theta, Roll phi): Inclination relative to gravity (0.000 deg to 90.000 deg), 
+    conditioned via complementary and Kalman filtering.
+  - Rate of Angular Shift (dtheta/dt): Creep velocity in deg/hr or deg/min.
+  - Vibration Intensity (RMS Amplitude): Root-mean-square acceleration (g) filtering ambient road traffic 
+    from seismic tremors or structural shear shocks.
+
+* Low-Cost Differential RTK-GNSS (Translational Slide Tripwire):
+  - Dual-frequency multi-constellation RTK-GNSS (u-blox ZED-F9P) measuring 3D coordinate displacement 
+    vectors (Delta X, Delta Y, Delta Z) at millimeter/centimeter resolution.
+  - Detects pure translational, bedding-plane, and graben block slides moving along flat failure planes 
+    with zero angular tilt change.
+
+* Hydrological & Subsurface Stress Telemetry:
+  - Volumetric Water Content (VWC %): Soil moisture volume ratio (0% to 100%) via analog capacitive 
+    dielectric permittivity probes.
+  - Soil Saturation Index (Sr): Pore void volume fraction occupied by water (0.0 to 1.0).
+  - Pore-Water Pressure (u): Hydrostatic pressure (kPa) from piezometers tracking positive pressure 
+    forcing soil particles apart.
+  - Matric Suction (psi_m): Negative pore-water pressure (kPa) in unsaturated soil measuring capillary 
+    bonding strength.
+
+* 1D Continuous Electrical Resistivity Probes (ERT Slip-Surface Profiling):
+  - Multi-electrode stainless steel array (Wenner/Schlumberger configuration) injecting low-frequency AC.
+  - Apparent electrical resistivity (rho_a in Ohm*m) profiles; sharp conductivity spikes identify perched 
+    water tables and sliding planes without drilling exploratory boreholes.
+
+* Fiber Bragg Grating (FBG) Strain Sensors & Load Cells:
+  - Optical FBG sensors bonded to roadside rock bolts, soil nails, and anchor tendons.
+  - Continuous micro-strain (micro-epsilon) and tensile load (kN) measurements tracking retaining wall 
+    and tieback overload.
+
+* Brittle Fracture & Micro-Acoustics (Piezoelectric Bedrock Geophones):
+  - Acoustic Emission Event Rate (AE Count): High-frequency stress-wave spikes per second (events/s) 
+    indicating rock micro-fracturing prior to macro-displacement.
+  - Peak Signal Amplitude / Energy (Vpp): Signal strength (mV or dB) measuring kinetic energy release 
+    during brittle fracture.
+  - Brittle Shear Tripwire Flag (Binary 0 or 1): Hardware interrupt tripped when acoustic emissions cross 
+    critical thresholds, catching sudden zero-creep planar breaks.
+
+* Edge Audio Spectrogram Classification & Spiking Neural Networks (SNN):
+  - Quantized SNN / 1D-CNN evaluating 64-band mel-spectrograms from contact geophones.
+  - Distinguishes tensile rock fractures (20 kHz - 100 kHz) from diesel engine rumbles, horns, and 
+    construction blasting at micro-watt power levels.
+
+* Power Circuit & Node Health (Solar-LiFePO4 Circuit):
+  - Battery Terminal Voltage (Vbat): Volts (V, nominal 3.2V, cutoff 2.8V).
+  - Battery State of Charge (SOC %): Reserve capacity (0% to 100%).
+  - Solar Harvesting Voltage (Vpv): Panel generation potential (V) tracking charging vs. reserve draw 
+    under cloud cover.
+  - Internal Node Temperature (Tint): On-chip ESP32-S3 thermal sensor reading (deg C).
+
+* Telemetry Link Quality & Diagnostic Identifiers:
+  - Received Signal Strength Indicator (RSSI): Radio reception (dBm, -60 to -125 dBm).
+  - Signal-to-Noise Ratio (SNR): LoRa link quality (dB, -20 to +10 dB).
+  - Packet Sequence ID: Incrementing transmission counter tracking packet drop across mountain passes.
+
+----------------------------------------------------------------------------------------------------
+2.2. REMOTE SENSING, SATELLITE EARTH OBSERVATION & AERIAL PROFILING
+----------------------------------------------------------------------------------------------------
+* Radar Earth Observation (Sentinel-1 SAR & NISAR Dual L/S-Band):
+  - Line-of-Sight Surface Displacement (d_LOS): Metric movement (mm or cm) toward or away from the sensor 
+    across orbital passes.
+  - Deformation Velocity (v_LOS): Long-term creep velocity (mm/year or mm/month) derived via PS-InSAR 
+    and SqueeSAR distributed scatterer processing.
+  - Interferometric Coherence (gamma): Correlation coefficient (0.0 to 1.0); values below 0.3 flag dense 
+    jungle phase decorrelation.
+  - Polarimetric Backscatter Coefficients (sigma^0): Radar reflectivity (dB) across VV, VH, HH, and HV 
+    polarizations to track roughness and soil moisture through monsoon cloud decks.
+  - Geocoded Unwrapped Phase (Delta phi_unw): Continuous phase change (rad), converted to metric displacement 
+    using radar wavelength (lambda).
+
+* Optical Multispectral Satellites (Sentinel-2 MSI & PlanetScope):
+  - Surface Reflectance (Bands B2-B12): Visible (RGB), Near-Infrared (NIR, Band 8), and Short-Wave 
+    Infrared (SWIR, Bands 11 & 12).
+  - Normalized Difference Vegetation Index (NDVI): Ratio (-1.0 to +1.0) detecting scarp formation, 
+    deforestation, and vegetation stripping.
+  - Normalized Difference Moisture Index (NDMI): Canopy and topsoil moisture tracking (-1.0 to +1.0).
+  - Anthropogenic Change Masks (Binary Polygons): Automated change detection identifying illegal slope 
+    cutting, un-retained excavations, and quarrying along highway corridors.
+
+* Thermal Infrared (TIR) Groundwater Seepage Profiling:
+  - Drone-mounted or satellite TIR sensors detecting surface thermal differentials (deg C).
+  - Maps daylighting groundwater seepage and saturated piping paths on rock faces via thermal contrasts 
+    with sun-warmed dry rock.
+
+* Digital Topography & Geomorphology (Cartosat 10m DEM / SRTM):
+  - Absolute Elevation (Z): Surface altitude (m) above mean sea level.
+  - Slope Angle (beta): Gradient in degrees (0 deg to 90 deg).
+  - Slope Aspect (alpha): Azimuth compass orientation (0 deg to 360 deg) modeling monsoon trajectory 
+    exposure and solar drying rates.
+  - Profile & Planform Curvature: Cross-sectional and plan-view terrain curvature identifying concave 
+    gullies that concentrate pore pressure.
+  - Topographic Wetness Index (TWI): Ratio of upslope catchment area to slope gradient (ln(a / tan beta)) 
+    identifying subsurface saturation accumulation zones.
+  - Stream Power Index (SPI): Measure of ravine erosive power identifying potential debris-flow channels.
+
+* Drone Gaussian Splatting & High-Density Photogrammetry:
+  - Converts 30-second orbital drone video into dense 3D point clouds and real-time interactive Gaussian 
+    Splats in the browser.
+  - Allows remote geotechnical engineers to measure tension crack apertures, joint dip angles, bedding 
+    planes, and scarp heights without visiting hazardous sites.
+
+* GNSS-Reflectometry (GNSS-R) Soil Saturation Scanning:
+  - Ingests reflected L-band signals from GPS/NavIC constellations via roadside patch antennas to measure 
+    non-invasive, root-zone soil dielectric permittivity over a 50-meter radius.
+
+----------------------------------------------------------------------------------------------------
+2.3. OPPORTUNISTIC, DISTRIBUTED & ALTERNATIVE GROUND SENSING
+----------------------------------------------------------------------------------------------------
+* Distributed Acoustic Sensing (DAS) on Roadside Dark Fiber:
+  - Optical interrogator units connected to unused optical fiber cables (OFC) along national highways 
+    (e.g., BharatNet, NH-06, NH-27, NH-10).
+  - Rayleigh backscatter phase shifts measure dynamic strain, seismic waves, rockfall impacts, and 
+    micro-vibrations continuously every 1 to 5 meters along 50+ km of road without external hillside electronics.
+
+* Neuromorphic Event Cameras (Dynamic Vision Sensors - DVS):
+  - Roadside gantry event cameras recording asynchronous pixel changes at microsecond resolution on < 20 mW power.
+  - Zero compute while the slope is static; triggers instantly on dislodged rock movement to map kinetic 
+    trajectories, bounce heights, and velocity vectors.
+
+* Fleet Telematics & Dynamic Road Roughness Ingestion (IRI):
+  - Ingests vertical accelerometer telemetry and GPS logs from public transit buses (ASTC, MST), postal vans, 
+    and commercial fleet vehicles.
+  - Identifies progressive vertical dips in the International Roughness Index (IRI) along 50-meter pavement 
+    stretches, revealing active toe settlement, road subsidence, and retaining wall creep before visual cracks emerge.
+
+* Spring Water Turbidity Monitoring:
+  - Optical turbidity sensors (< Rs 1,500) deployed at natural hillside spring outlets (dhara / kuwa).
+  - Sudden spikes in nephelometric turbidity units (NTU) reveal internal hydraulic piping and subsurface 
+    particle erosion days before macroscopic slope failure.
+
+* Ambient Seismic Noise Cross-Correlation (Delta v/v Monitoring):
+  - Cross-correlates continuous ambient seismic noise from geophone pairs to track relative seismic velocity 
+    changes (Delta v/v).
+  - A drop in shear-wave velocity indicates micro-crack dilatancy and mechanical stress build-up inside 
+    the slope mass prior to shear failure.
+
+* Infrasound Array Monitoring for Distant Headwalls:
+  - Tripartite low-frequency acoustic pressure arrays (< 20 Hz) placed at valley mouths.
+  - Captures low-frequency pressure waves to provide 10- to 20-minute early warnings of distant, 
+    non-line-of-sight rock avalanches and glacial moraine failures in inaccessible mountain headwalls.
+
+----------------------------------------------------------------------------------------------------
+2.4. METEOROLOGY, HYDROLOGY & REGIONAL GEOLOGICAL BASELINES
+----------------------------------------------------------------------------------------------------
+* Meteorological Telemetry (IMD AWS, MOSDAC & NASA-JAXA GPM IMERG):
+  - Precipitation Intensity (I): Instantaneous rainfall rate in millimeters per hour (mm/hr).
+  - Cumulative Rainfall Totals: Rolling window sums (P_24h, P_48h, P_72h in mm).
+  - Antecedent Precipitation Index (API): Weighted exponential decay sum over a 3- to 40-day window (mm) 
+    modeling pre-existing saturation.
+  - Quantitative Precipitation Forecast (QPF): 24- to 72-hour forward-looking gridded rainfall models (WRF/GFS).
+  - Cloud-Top Brightness Temperature (Tb): Geostationary INSAT-3D/3DR infrared sensor data (K) tracking 
+    convective cloudburst cells over ridgelines.
+
+* Jhum (Shifting Cultivation) Root-Cohesion Decay Modeling:
+  - Bi-temporal Sentinel-2 tracking of active versus fallow jhum plots.
+  - Applies an empirical 18- to 36-month root decay curve, systematically downgrading vegetative root 
+    cohesion (c_r from 15 kPa -> 0 kPa) on green, shrub-covered slopes that lack structural subsurface root anchors.
+
+* Geological, Tectonic & Seismological Baselines:
+  - Historical Landslide Inventory (GSI Bhukosh): Geocoded polygons of failure scars, slip mechanics 
+    (rotational, planar, debris flow), and triggering conditions.
+  - Lithological Units & Structural Lineaments (NESAC NESDR): Bedrock classifications, weathering grades, 
+    joint/foliation dip angles, and distance to active tectonic faults (e.g., Dauki Fault, Main Boundary Thrust).
+  - Real-Time Seismic Parameters (NCS API): Earthquake origin time, epicenter coordinates, focal depth (km), 
+    and Richter magnitude (M) to trigger immediate threshold recalculations on rain-saturated slopes.
+
+* Indigenous Toponymic Intelligence (Tribal Cultural GIS):
+  - NLP extraction on Survey of India historical gazetteers and indigenous oral histories (Khasi, Mizo, 
+    Garo, Assamese) to map settlements with linguistic indicators of past slope failures (e.g., "shifting stones", 
+    "crying mountains").
+  - Resolves the "cold-start" training data problem for un-surveyed, remote tribal valleys.
+
+----------------------------------------------------------------------------------------------------
+2.5. EDGE INTELLIGENCE, RELIABILITY & RESILIENT COMMUNICATIONS
+----------------------------------------------------------------------------------------------------
+* TinyML Anomaly Detection & Model Quantization:
+  - Unsupervised autoencoders running on the ESP32-S3 that output an anomaly score (0.00 to 1.00) to 
+    differentiate structural slope movement from baseline environmental noise.
+  - INT8 quantization via ONNX Runtime / TensorFlow Lite, keeping inference latency under 40 milliseconds.
+
+* Multi-Node Spatial Consensus (k-out-of-n Validation) & P2P LoRa Gossip:
+  - Requires at least two adjacent nodes within a 150-meter cluster to register concurrent angular shifts 
+    (Delta theta > 3 deg) or acoustic spikes within a 5-second window.
+  - Adjacent nodes communicate via peer-to-peer LoRa Gossip/Raft consensus to actuate local road barriers 
+    directly, even if central network gateways are offline.
+
+* Dynamic Adaptive Duty Cycling:
+  - Dry / Low Risk (VWC < 40%): Deep sleep mode (15 uA current draw), polling telemetry once per hour.
+  - Active Rain / Saturation (VWC >= 70%): Medium wakefulness, polling every 5 minutes.
+  - Critical Threshold (VWC >= 85% or sudden angular acceleration): Continuous real-time burst streaming.
+  - Extends operational life on a single 3.2V LiFePO4 battery cell from 15 to over 45 days under continuous 
+    monsoon overcast.
+
+* Onboard Temperature Drift Compensation:
+  - Calibrated polynomial offset lookup tables running on edge firmware to cancel out temperature-induced 
+    accelerometer drift caused by diurnal temperature swings (4 deg C to 32 deg C).
+
+* Multi-Tiered Fail-Safe Communications:
+  - Sub-GHz LoRa Mesh (SX1262): Long-range localized transmission (865-867 MHz India band) across 5-15 km 
+    deep mountain ravines.
+  - Dual-SIM Industrial Gateways: Automatic eSIM switching between BSNL, Airtel, and Jio based on ping 
+    latency and packet-loss checks.
+  - ISRO NavIC Messaging Backup: Integrated S-band / L5 satellite receiver modules to transmit burst-alert 
+    coordinates directly to satellite constellations when cellular towers, power lines, and LoRa repeaters collapse.
+  - Delay-Tolerant Networking (DTN) / Vehicular Data Mules: BLE/Wi-Fi Direct opportunistic mesh pairing; 
+    isolated nodes upload buffered sensor telemetry to passing patrol vehicles (BRO trucks, postal vans, 
+    milk jeeps), which upload the data to the central cloud upon reaching connectivity.
+
+----------------------------------------------------------------------------------------------------
+2.6. PREDICTIVE MODELING, GEOTECHNICAL ENGINES & ANALYTICS
+----------------------------------------------------------------------------------------------------
+* The Heterogeneous Multi-Model Stack:
+  - CatBoost Classifier: Specialized for high-cardinality categorical lithology, rock weathering classifications, 
+    and fault structural types.
+  - LightGBM Classifier: High-speed evaluation of rolling weather histograms and multi-day temporal rainfall 
+    bins (4x - 8x faster execution).
+  - XGBoost Classifier: Tuned for continuous non-linear feature interactions between slope geometry, vegetation 
+    metrics, and InSAR vectors.
+  - TabNet / ResNet-MLP: Deep tabular representation creating smooth continuous failure manifolds, preventing 
+    step-function jumps from minor angle shifts.
+  - Graph WaveNet / ST-GNN: Models hydrological pore-pressure propagation across micro-watersheds using learnable 
+    adaptive adjacency matrices:
+        A_adaptive = Softmax(ReLU(E_1 * E_2^T))
+  - Physics-Informed Neural Networks (PINNs): Incorporates Richards' unsaturated flow PDE and Mohr-Coulomb 
+    stability constraints directly into the loss function:
+        L_total = L_MSE(y, y_hat) + lambda_1 * L_Richards(theta, psi_m) + lambda_2 * ReLU(1.0 - FoS)
+  - Stacking Meta-Learner: Combines base model probability vectors through a regularized Ridge Logistic 
+    Regression / Constrained NNLS meta-model.
+
+* Pedotransfer Inversion (Un-Surveyed Valleys):
+  - Converts open ICAR-NBSS&LUP soil taxonomic texture maps (sand/silt/clay fractions, bulk density) into 
+    effective cohesion (c'), internal friction angle (phi'), and saturated hydraulic conductivity (K_sat) 
+    using Pedotransfer Functions (PTFs).
+  - Performs automated back-analysis inversion following micro-slides to iteratively calculate the actual 
+    mobilized friction angle and auto-calibrate local slope parameters.
+
+* Explainable AI (XAI) via TreeSHAP:
+  - Computes local Shapley Additive exPlanations on-the-fly, displaying the top three physical drivers alongside 
+    confidence intervals (e.g., "Risk: 87% | Confidence: 74% | Drivers: 72h Rain Saturation (58%), Slope Angle > 38 deg (24%), 
+    Fresh Road-Cut Excavation (18%)").
+
+* Spatial & Online Locally Weighted Conformal Prediction:
+  - Replaces global exchangeability assumptions with spatial kernel weighting (K(d(x_target, x_i))), calculating 
+    locally valid non-conformity quantiles that reflect regional geological variance.
+
+* Sub-Horizontal Drainage & Electro-Kinetic Dewatering Modeling:
+  - Physics module modeling groundwater drawdown curves achieved by proposed sub-horizontal siphon drains or 
+    electro-osmotic stabilization, simulating how targeted dewatering raises the local Factor of Safety (FoS).
+
+----------------------------------------------------------------------------------------------------
+2.7. PHYSICAL PREVENTION, STRUCTURAL MITIGATION & ENGINEERING INTERVENTIONS
+----------------------------------------------------------------------------------------------------
+* Roadside Culvert Vulnerability Index (CVI):
+  - Specialized citizen and highway patrol WhatsApp reporting module logging blocked concrete culverts, 
+    silted catchpits, and road-shoulder runoff overflow.
+  - Reduces the localized failure threshold by 30% on adjacent slopes until desilting is completed, 
+    preventing water diversion over uncompacted fill.
+
+* BRO / NHIDCL Work-Order Synchronization:
+  - Direct ingestion of road-widening permits, slope blasting, and heavy earthmoving schedules from highway contractors.
+  - Temporarily masks sensor drift from heavy machinery vibrations to suppress false alarms while enforcing 
+    geo-fenced exclusion boundaries on construction drawings.
+
+* Preventative Bio-Engineering & Drainage ROI Calculator:
+  - Compares 3-year recurring road-clearance and emergency restoration costs against targeted preventative 
+    bio-engineering (Vetiver grass systems, bamboo fascines, contour catchwater drains, stone masonry breast walls).
+  - Outputs net capital savings and engineering cost-benefit ratios to support preventative winter budgeting.
+
+* Nature-Based Solutions (NbS) Carbon-Credit Financing Engine:
+  - Quantifies carbon biomass sequestration and soil-organic carbon stabilization for recommended vegetative 
+    slope stabilization interventions.
+  - Enables district collectors to fund preventative slope stabilization programs through CAMPA, voluntary 
+    carbon markets, and national climate adaptation grants.
+
+----------------------------------------------------------------------------------------------------
+2.8. ACTIONABLE GOVERNANCE, INFRASTRUCTURE CONTROL & AUTOMATED LOGISTICS
+----------------------------------------------------------------------------------------------------
+* Autonomous LoRa-Actuated Road Gating & Variable Message Signs (VMS):
+  - Direct edge-to-actuator sub-GHz LoRa link from sensor clusters to solar-powered drop-arm boom barriers 
+    and digital LED signs 1 km upstream and downstream.
+  - Physically halts incoming vehicles within seconds of a critical tripwire breach, bypassing administrative 
+    communication delays.
+
+* Automated Electrical Grid Islanding:
+  - Direct SCADA/PLC trip integration with State Electricity Distribution Companies (e.g., APDCL, MeECL).
+  - Automatically opens 11 kV / 33 kV circuit breakers within milliseconds of a confirmed slope failure, 
+    de-energizing falling power lines before they contact wet mud and watercourses.
+
+* 1-Click Administrative SOP Generation:
+  - Converts complex geotechnical hazard matrices into pre-formatted, legal evacuation orders, detour notices, 
+    and highway diversion checklists on the District Magistrate's dashboard for instant authorization.
+
+* Daytime Pre-Emptive Travel Gating (Sunset Restrictions):
+  - Shifts emergency response windows forward. If predictive saturation curves forecast overnight failure, 
+    the system prompts authorities to issue daytime diversions and sunset travel restrictions, preventing 
+    hazardous nighttime operations.
+
+* Strategic Defence Corridor Prioritization:
+  - Integrates Border Roads Organisation Project Vartak/Pushpak logistics layers to assign prioritized clearance 
+    corridors to military supply routes along the Line of Actual Control (e.g., Balipara-Charduar-Tawang road) 
+    before civilian routes.
+
+* North Eastern Council (NEC) Unified Inter-State Gateway:
+  - Dispatches synchronized hazard notifications to neighboring State Emergency Operation Centers simultaneously 
+    along shared inter-state highway corridors (e.g., NH-06, NH-54, NH-10), preventing jurisdictional hand-off delays.
+
+* GSI NLFC & Bhusanket Interoperability Middleware:
+  - Formats all outbound spatial polygons, sensor classifications, and incident reports to match the GSI-BGS 
+    LANDSLIP data dictionary, serving as the hyper-local edge monitoring layer for the National Landslide 
+    Forecasting Centre.
+
+----------------------------------------------------------------------------------------------------
+2.9. HUMAN IMPACT, LAST-MILE WARNINGS & FIELD OPERATIONS
+----------------------------------------------------------------------------------------------------
+* Isolation-Impact Twin (The Human-Centered Metric):
+  - Models the road network as a topological graph G = (V, E) using OSMnx, NetworkX, and high-performance rustworkx.
+  - Simulates slope failure by computationally removing road edges, traverses isolated downstream branches, 
+    and intersects the isolated zone with WorldPop demographic raster grids.
+  - Outputs operational human impact metrics:
+    "Slope failure at KM 42 (NH-54). Impact: 6 villages, ~2,400 people, 1 Primary Health Centre, and 1 school 
+    isolated for an estimated 4 days."
+
+* Dynamic Transient & Tourist Population Multiplier:
+  - Ingests real-time FASTag toll data, inter-state bus manifests, and police checkpost vehicle logs to scale 
+    resident WorldPop estimates during peak tourism seasons.
+  - Reports total stranded individuals, including bus passengers, tourists, and freight truckers, alongside permanent residents.
+
+* PDS & Essential Inventory Depletion Tracker:
+  - Correlates the projected road blockage duration against localized grain, fuel, and medical buffer stocks 
+    in local Public Distribution System (PDS) and FCI warehouses.
+  - Automatically flags imminent community stockouts, escalating priority to emergency air-drop supply routes 
+    when isolation times exceed local reserves.
+
+* Two-Way Citizen WhatsApp Pipeline & Metric Computer Vision:
+  - Zero-install citizen reporting via WhatsApp for geotagged images.
+  - Integrates YOLOv11-Seg and SAM-2 with EXIF camera rectification to classify field damage and compute metric 
+    physical dimensions (e.g., "Tension crack width: 14.2 cm +/- 1.1 cm").
+  - Routes tagged imagery directly to Aapda Mitra volunteers for verification before updating system hazard layers.
+
+* Aapda Mitra Volunteer Task-Dispatch Loop:
+  - Automated dispatch system that pings the nearest registered disaster management volunteer within a 3 km radius 
+    to visually inspect localized drainage culverts and developing tension cracks before formal alert escalation.
+
+* Ridge-Line Pedestrian Micro-Evacuation Pathfinding:
+  - Pedestrian pathway and stairway network graph for hillside urban centers (e.g., Aizawl, Kohima, Gangtok).
+  - Generates step-by-step pedestrian evacuation routes directing fleeing residents uphill along structurally sound 
+    geological ridge-lines, steering them away from drainage gullies that funnel fast-moving debris flows.
+
+* Multi-Channel Vernacular Dissemination:
+  - Outputs geofenced alerts via NDMA SACHET / CAP (Cell Broadcast/SMS), automated WhatsApp messages, and voice IVR 
+    in 6 local languages (Assamese, Khasi, Mizo, Manipuri, Bengali, and English), backed by community panchayat 
+    sirens and off-grid VHF radio relays.
+
+----------------------------------------------------------------------------------------------------
+2.10. POST-DISASTER TRIAGE, RECOVERY & ACCOUNTABILITY
+----------------------------------------------------------------------------------------------------
+* Landslide-Dammed Lake Outburst Flood (LDOF) Modeling:
+  - Couples digital elevation canyon profiles with river discharge rates to predict debris-damming potential on mountain rivers.
+  - Models impoundment fill rates, dam-breach timeframes (e.g., 14 to 18 hours), and downstream peak flood surge wave heights.
+
+* Post-Disaster Golden Hour Debris Volume & NDRF Triage:
+  - Computes Differential Digital Elevation Models (DoD) by subtracting pre-event Cartosat DEMs from post-event drone 
+    or high-resolution satellite scans.
+  - Generates a 3D Debris Thickness Heatmap showing exact buried road alignments, structural positions, and 
+    high-probability survival voids to guide heavy excavators safely.
+
+* Automated UAV / Drone Reconnaissance Waypoint Export:
+  - Automatically compiles .kml / .waypoints flight-path mission files centered over triggered slopes, allowing volunteer 
+    drone operators to conduct immediate aerial surveys without entering active landslide zones.
+
+* Automated Parametric Micro-Relief (Direct Benefit Transfer):
+  - Links satellite InSAR and sensor-verified catastrophic slide footprints with state disaster relief rosters and 
+    verified beneficiary direct bank transfer mechanisms.
+  - Disburses emergency cash liquidity directly into verified bank accounts within 24 hours of displacement, 
+    bypassing bureaucratic processing delays.
+
+* Cryptographic Audit Trail (SHA-256 Ledger):
+  - Hashes every sensor reading, risk score, SOP recommendation, and administrative sign-off into an immutable, 
+    append-only cryptographic state chain.
+  - Provides a tamper-proof audit trail for post-disaster judicial and administrative reviews, establishing an 
+    objective timeline of automated warnings and authorized emergency actions.
+
+
+====================================================================================================
+3. EDGE WIRE PROTOCOL, INGESTION SECURITY & GATEWAY BATCHING
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+3.1. ULTRA-LOW-BANDWIDTH 20-BYTE BINARY WIRE PROTOCOL (SUB-GHz LoRa)
+----------------------------------------------------------------------------------------------------
+Transmitting raw JSON over mountain LoRa links (IN865 band, Spreading Factor 10-12) causes packet 
+fragmentation, high airtime violation, and transmission failure. Edge sensor nodes package all telemetry 
+into an exact 20-byte packed C-struct:
+
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Byte  |  Node ID (16-bit unsigned)   |    Epoch Offset (16-bit uint) | [0 - 3]
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Byte  |  Pitch Angle (int16, x100)    |  Roll Angle (int16, x100)     | [4 - 7]
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Byte  | VWC (uint8, %) | Bat V (uint8)| Pore Pressure (uint16, x10)   | [8 - 11]
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Byte  |  AE Spike Count (uint16)      | Vpp Peak Energy (uint16, mV)  | [12 - 15]
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Byte  | Temp C (int8)  | Status Flags | Dynamic CRC-16 Checksum       | [16 - 19]
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+* Python Struct Unpacking Specification:
+  ```python
+  FRAME_FORMAT = "<HHhhBBHHHHbBH"  # 20 bytes exact
+  ```
+  - Node ID (2 bytes, uint16): Supports up to 65,535 registered edge nodes.
+  - Epoch Offset (2 bytes, uint16): Seconds elapsed since base hourly synchronization.
+  - Pitch / Roll (2 bytes each, int16): Scaled by 100 (-90.00 deg to +90.00 deg -> -9000 to +9000).
+  - VWC (1 byte, uint8): Unsigned 8-bit integer (0% to 100%).
+  - Battery Voltage (1 byte, uint8): Scaled offset: V_stored = (V_actual - 2.0) * 100 (range 2.00V - 4.55V).
+  - Pore Pressure (2 bytes, uint16): Scaled by 10 (0.0 kPa to 6553.5 kPa).
+  - AE Count & Vpp (2 bytes each, uint16): Micro-acoustic counts (events/s) and peak energy (mV).
+  - Temp C (1 byte, int8): Signed temperature (-40 deg C to +85 deg C).
+  - Status Flags (1 byte bitfield):
+      Bit 0: Brittle Shear Tripwire (0=Normal, 1=TRIPPED)
+      Bit 1: Solar Harvesting Active (0=Discharging, 1=Charging)
+      Bits 2-3: Power Mode (00=DeepSleep, 01=Normal, 10=Burst, 11=Fault)
+      Bit 4: Consensus Flag (0=Standalone, 1=Neighbor-Verified)
+      Bits 5-7: Reserved parity bits.
+  - CRC-16-CCITT (2 bytes, uint16): Immediate corruption filter at the gateway.
+
+----------------------------------------------------------------------------------------------------
+3.2. LoRa CONCENTRATOR GATEWAY BINARY BATCH ENDPOINT (POST /telemetry/binary-batch)
+----------------------------------------------------------------------------------------------------
+To prevent connection saturation over low-bandwidth cellular 2G/4G mountain links, multi-channel LoRa 
+gateways (SX1302/SX1303) aggregate frames and push batches over HTTP/WebSocket:
+* Gateway Batch Header (4 bytes):
+  - Gateway ID (2 bytes, uint16)
+  - Frame Count N (2 bytes, uint16)
+  - Followed by N x 20-byte raw telemetry frames.
+FastAPI parses the batch in native C-speed memory slicing (< 0.15 ms per 50 frames).
+
+----------------------------------------------------------------------------------------------------
+3.3. NODE CLOCK DRIFT & EPOCH ANCHORING PROTOCOL
+----------------------------------------------------------------------------------------------------
+Because low-cost ESP32-S3 nodes lack battery-backed RTC chips and drift 2-5 seconds per day, absolute time 
+is anchored at the Gateway layer:
+    TrueTimestamp = GatewayHourlySyncEpoch + NodeEpochOffset
+If NodeEpochOffset exceeds 3600s, the gateway flags the packet for clock resynchronization via downlink beacon.
+
+----------------------------------------------------------------------------------------------------
+3.4. GATEWAY SECURITY, HMAC-SHA256 AUTHENTICATION & ANTI-POISONING CLAMPING
+----------------------------------------------------------------------------------------------------
+All incoming gateway webhooks and telemetry endpoints execute a strict 4-tier filtering pipeline:
+1. Authentication & HMAC Verification:
+   Requests must carry an `X-Signature-SHA256` header calculated over the raw binary payload using a pre-shared 
+   secret key. Unsigned or mismatched requests are rejected immediately (HTTP 401).
+2. Schema & Range Clamping (Pydantic v2):
+   Incoming values are checked against strict physical boundaries (e.g., Pitch > 90 deg, VWC > 100%, 
+   battery voltage < 1.8V or > 4.5V). Out-of-bounds readings are quarantined.
+3. Idempotency & Deduplication:
+   Using `sequence_id` and `node_id`, a Redis key with a 120-second TTL (`SET key EX 120 NX`) drops 
+   duplicate retry packets caused by unstable mobile connections.
+4. Input Neutralization:
+   Textual fields in citizen reports (WhatsApp text, descriptions) are stripped of executable scripting 
+   and SQL escape characters before persistence.
+
+----------------------------------------------------------------------------------------------------
+3.5. INGESTION BACKPRESSURE & DEAD-LETTER QUEUE (DLQ) QUARANTINE
+----------------------------------------------------------------------------------------------------
+* Partitions & Throughput Buffer:
+  Incoming sensor packets pass into Redpanda/Kafka topic `telemetry.raw`. During extreme storms, edge bursts 
+  can reach 1,000+ packets/sec. Redpanda buffers the stream without exhausting server memory.
+* Dead-Letter Queue (DLQ):
+  Packets failing CRC-16 checks, schema validation, or containing corrupted byte sequences are routed 
+  to the `telemetry.dlq` topic and persisted in the `quarantine_telemetry` table for forensics without 
+  halting the active analytical worker pipeline.
+
+
+====================================================================================================
+4. RESILIENT EDGE-CLOUD CONNECTIVITY & OFFLINE ARCHITECTURE
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+4.1. EDGE GATEWAY STORE-AND-FORWARD ENGINE (SQLite WAL CIRCULAR BUFFER)
+----------------------------------------------------------------------------------------------------
+During severe monsoons, fiber cuts and cellular tower battery exhaustion in hilly states can sever internet 
+connectivity for 24 to 72 hours.
+* The roadside gateway (Raspberry Pi CM4 or industrial gateway) writes incoming 20-byte LoRa packets to a 
+  local circular SQLite buffer (`PRAGMA journal_mode=WAL`).
+* Capacity: Holds up to 7 days of continuous high-frequency telemetry (~50 MB for 50 nodes).
+* Automatic Sync: Upon cellular/broadband restoration, an asynchronous daemon streams buffered packets to 
+  `POST /telemetry/binary-batch` using chunked gzip compression.
+
+----------------------------------------------------------------------------------------------------
+4.2. OUT-OF-ORDER TIME-SHIFT INVARIANT RULES (SUPPRESSING RETROACTIVE ALARMS)
+----------------------------------------------------------------------------------------------------
+When 72 hours of buffered packets flood into the central backend after network restoration:
+* Time-Shift Check:
+  ```python
+  is_backfilled = (current_server_epoch - packet_timestamp) > 300  # Older than 5 min
+  ```
+* Invariant Safety Rule:
+  Backfilled historical packets update TimescaleDB records and cumulative precipitation metrics (API-40d), 
+  but **NEVER trigger instantaneous edge sirens, boom barriers, SCADA trips, or CAP emergency cell broadcasts**. 
+  This completely prevents historical tilt events from triggering false emergency evacuations days later.
+
+----------------------------------------------------------------------------------------------------
+4.3. GOVERNMENT API CIRCUIT BREAKERS (IMD / MOSDAC / NCS 3-TIER FALLBACK)
+----------------------------------------------------------------------------------------------------
+External government feeds (IMD rainfall, MOSDAC radar, NCS earthquakes) frequently timeout or change formats 
+during extreme weather. The backend wraps external calls in an asynchronous circuit breaker (`pybreaker`):
+```
+[External IMD/MOSDAC API]
+          │
+     (Fails 3x)
+          ▼
+ [Trip Circuit Breaker] ──► [Fallback 1: Open-Meteo / ECMWF Backup API]
+                                     │
+                                (Fails/Offline)
+                                     ▼
+                      [Fallback 2: Topographic Climatology Profile]
+                      - Applies historical monsoon lapse rates
+                      - Continues physics calculations with "ESTIMATED" flag
+```
+* Data Provenance Tagging:
+  Every computed risk vector is stamped with its source:
+  `{"weather_source": "IMD_DIRECT" | "ECMWF_BACKUP" | "LOCAL_OROGRAPHIC_ESTIMATE"}`
+  ensuring the dashboard never crashes with a blank error screen.
+
+
+====================================================================================================
+5. HIGH-PERFORMANCE COMPUTATIONAL TOPOLOGY & FEATURE SERVING
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+5.1. MASTER SYSTEM TOPOLOGY DIAGRAM
+----------------------------------------------------------------------------------------------------
+
+                                  +---------------------------------------+
+                                  |       EXTERNAL DATA SOURCES           |
+                                  |  - IMD / MOSDAC Weather APIs          |
+                                  |  - NCS Real-Time Earthquake Listener  |
+                                  |  - GEE / Sentinel Hub Optical & SAR   |
+                                  |  - FASTag / NHAI Transit Checkposts   |
+                                  +-------------------+-------------------+
+                                                      | (Circuit-Breaker Wrapped)
+                                                      v
++-------------------------+       +---------------------------------------+       +-----------------------+
+| EDGE SENSOR MESH        | ----> | FASTAPI ASYNC INGESTION GATEWAY       | <---- | CITIZEN WHATSAPP BOT  |
+| - ESP32-S3 Inclinometers|       | (HMAC Auth, Binary Unpacker, Webhooks)|       | - Twilio / Meta API   |
+| - Geophones, ERT, FBG   |       +-------------------+-------------------+       +-----------------------+
++-------------------------+                           |
+             |                                        v
+             |                    +---------------------------------------+
+             +------------------> | REDPANDA / KAFKA EVENT LOG STREAM     |
+                                  | (Partitioned Topics & DLQ Quarantine) |
+                                  +-------------------+-------------------+
+                                                      |
+                         +----------------------------+----------------------------+
+                         |                                                         |
+                         v                                                         v
++-------------------------------------------------+     +-------------------------------------------------+
+| ASYNC COMPUTE WORKER POOL                       |     | PERSISTENCE & STORAGE LAYER                     |
+| - Worker 1: Topographic Downscaling (Rasterio)  |     | - PostgreSQL 16 + PostGIS 3.4 (Geometries)      |
+| - Worker 2: PINN / Stacking Ensemble (Treelite) | <-> | - TimescaleDB (Sensor Telemetry Hypertables)    |
+| - Worker 3: Isolation Twin (Rustworkx Graph)    |     | - Redis 7 (H3 Feature Store & Cache)            |
+| - Worker 4: Vision Pipeline (YOLOv11 / SAM-2)   |     | - pgvector (DDMA Legal Disaster Manuals)        |
+| - Worker 5: FNO Runout Surrogate & DoD Volume   |     | - Local 72h SQLite Fallback (Gateway Mirror)    |
++------------------------+------------------------+     +------------------------+------------------------+
+                         |                                                         |
+                         v                                                         v
++---------------------------------------------------------------------------------------------------------+
+| PREDICTIVE DECISION & ACTUATION MICROSERVICES                                                           |
+| - LoRa P2P Edge Boom Barrier Actuation Controller                                                       |
+| - SCADA 11kV/33kV Power Substation Trip Relay Interface                                                 |
+| - HITL 1-Click SOP Legal Order PDF Generator (ReportLab / WeasyPrint)                                   |
+| - ITU-T X.1303 CAP XML / NDMA SACHET Gateway Disseminator (Strict XSD Validated)                        |
+| - Local RAG Pipeline (vLLM / Ollama Llama-3-8B / Llama-3.2-3B) for State Directives                     |
++----------------------------------------------------+----------------------------------------------------+
+                                                     |
+                                                     v
++---------------------------------------------------------------------------------------------------------+
+| REAL-TIME WEBSOCKET & REST API FOR ADMINISTRATIVE DASHBOARD (React UI)                                  |
+| - Dynamic Mapbox Vector Tile (MVT) Protocol Buffer Binary Stream (/tiles/{z}/{x}/{y}.pbf)               |
+| - Live 3D Risk Heatmap & Subsurface Piezometer Vector Stream                                            |
+| - 1-Click DM Authorization & PDF SOP Generation                                                         |
+| - Multi-Language WhatsApp Emergency Broadcast Pipeline                                                  |
++---------------------------------------------------------------------------------------------------------+
+
+----------------------------------------------------------------------------------------------------
+5.2. DUAL-PROFILE RUNTIME DEPLOYMENT MATRIX (CLOUD GPU vs. LAPTOP/CPU DEMO)
+----------------------------------------------------------------------------------------------------
+To guarantee seamless deployment across both resource-constrained developer laptops and high-performance 
+cloud servers without code changes:
+
+* Profile A: `cloud-production-gpu` (Dedicated Cloud Server / MeghRaj NIC Cloud):
+  - Ingestion Broker: Redpanda (Multi-partition, high-throughput).
+  - Computer Vision: YOLOv11-Seg + SAM-2 running on TensorRT.
+  - LLM / RAG: vLLM serving Llama-3-8B-Instruct (16-24 GB VRAM).
+  - Runout Modeling: 2D Fourier Neural Operator (FNO) on CUDA.
+
+* Profile B: `laptop-workstation-cpu` (Developer Laptop / Intel Core Ultra 9 / RTX 5070 Ti 12GB):
+  - Ingestion Broker: Redis Streams (Zero extra memory overhead).
+  - Computer Vision: YOLOv11-Seg (ONNX Runtime, FP16/INT8 on 5070 Ti, ~2.5 GB VRAM).
+  - LLM / RAG: Ollama serving 4-bit quantized `llama3.2:3b` or `llama3:8b-instruct-q4_K_M` (~4.8 GB VRAM).
+  - Runout Modeling: FNO PyTorch CUDA or Flow-R optimized vectorized fallback (~1.5 GB VRAM).
+  - Total VRAM Consumption: ~9.8 GB / 12 GB (Clean 2.2 GB headroom, zero OOM risk).
+
+----------------------------------------------------------------------------------------------------
+5.3. CORRIDOR MASKING & UBER H3 HEXAGONAL BINNING (RESOLUTIONS 9 & 10)
+----------------------------------------------------------------------------------------------------
+* The Problem:
+  Evaluating a raw 10m grid across an entire North Eastern state (e.g., Meghalaya = 22,429 km^2) requires 
+  evaluating 224 million cells, saturating CPUs.
+* The Solution:
+  1. Dynamic Highway Corridor Masking:
+     Restricts continuous model execution to an **800-meter corridor buffer** along National and State 
+     Highways (`ST_Buffer(road_geom, 800)`). This cuts active compute cells from 224M to < 60,000 cells (99.97% reduction).
+  2. Uber H3 Discrete Global Grid:
+     - Resolution 9 (~105m radius): Watershed hydrological accumulation & rainfall indices.
+     - Resolution 10 (~40m radius): Road cuttings, retaining walls, and sensor clusters.
+     - Spatial neighbor lookups become $O(1)$ 64-bit integer bit-shifts (`h3.k_ring(cell_id, 1)`), 
+       completely bypassing expensive PostGIS polygon intersections during live inference.
+
+----------------------------------------------------------------------------------------------------
+5.4. ZERO-COPY REDIS ONLINE FEATURE STORE CONTRACT (< 0.8 ms PIPELINE READS)
+----------------------------------------------------------------------------------------------------
+To decouple database SQL execution from sub-millisecond AI model inference, Member 2 builds and maintains 
+an in-memory Feature Store using Redis Hashes and Sorted Sets (ZSETs), while Member 3 reads flat arrays directly:
+
+* Static Topographic & Lithological Registry (Key: `static:cell:{h3_index}`):
+  HSET static:cell:8a6014285b7ffff \
+       slope_deg 38.45 aspect_deg 214.0 curvature_prof -0.042 twi 8.12 \
+       lithology_class 4 fault_dist_m 1420.0 jhum_fallow_months 14
+
+* Dynamic Sliding Window Hydrology (Key: `dynamic:cell:{h3_index}`):
+  HSET dynamic:cell:8a6014285b7ffff \
+       vwc_current 82.4 pore_pressure_kpa 18.6 rain_rate_1h 24.2 \
+       rain_accum_24h 112.4 api_40d 348.5 insar_vel_mmyr -34.2 last_updated 1788432836
+
+* Single Pipeline Query (< 0.8 ms):
+  ```python
+  pipe = redis.pipeline()
+  pipe.hgetall(f"static:cell:{h3_id}")
+  pipe.hgetall(f"dynamic:cell:{h3_id}")
+  static_f, dynamic_f = await pipe.execute()
+  ```
+
+----------------------------------------------------------------------------------------------------
+5.5. DYNAMIC MAPBOX VECTOR TILE (MVT) BINARY PROTOCOL BUFFER STREAMING
+----------------------------------------------------------------------------------------------------
+To achieve 60 FPS rendering on the React dashboard over throttled 2G/3G connections, the backend streams 
+pre-tiled binary Protocol Buffers (`.pbf`) generated directly inside PostGIS via `ST_AsMVT`, bypassing 
+heavy GeoJSON serialization. Delivery latency is under 25 ms per tile.
+
+----------------------------------------------------------------------------------------------------
+5.6. ON-PREMISE RAG PIPELINE & SEMANTIC KNOWLEDGE RETRIEVAL (vLLM / OLLAMA / pgvector)
+----------------------------------------------------------------------------------------------------
+An on-premise LLM server (vLLM on cloud, Ollama on laptop) connects to a `pgvector` store of official 
+disaster manuals (Assam SDMA, Meghalaya DDMA manuals, BRO engineering codes). When an alert is authorized, 
+the LLM generates a jurisdictionally compliant, pre-filled legal evacuation order PDF.
+
+
+====================================================================================================
+6. END-TO-END COMPUTATIONAL PIPELINE (THE 7 PRODUCTION STAGES)
+====================================================================================================
+
+[Stage 1: Multi-Rate Harmonization] ---> [Stage 2: Geotechnical Physics] ---> [Stage 3: Multi-Model Ensemble]
+                                                                                               |
+[Stage 6: Isolation Twin] <--- [Stage 5: Kinematic Runout] <--- [Stage 4: UQ & Explainability] <-------+
+            |
+            v
+[Stage 7: Edge Actuation & SHA-256 Ledger]
+
+----------------------------------------------------------------------------------------------------
+6.1. STAGE 1: MULTI-RATE SPATIO-TEMPORAL INGESTION & GRID HARMONIZATION
+----------------------------------------------------------------------------------------------------
+* Spatial Canvas:
+  Projects all incoming vector and raster datasets to a canonical 10m x 10m grid in UTM Zone 46N (EPSG:32646) 
+  and associates them with Uber H3 index bins (Resolutions 9 & 10). Rasters are dynamically aligned using 
+  bilinear/cubic spline resampling; vector geometries are snapped to grid nodes.
+
+* Temporal Routing:
+  - Real-Time Edge (100 Hz - 1 Hz):
+    Sensor frames are filtered via a complementary Kalman filter. Temperature drift is eliminated using 
+    on-chip polynomial tables:
+        theta_corrected = theta_raw - SUM_{k=0}^3 [ c_k * (T_int - T_calibrated)^k ]
+    The k-out-of-n consensus rule confirms movements across adjacent nodes within 5 seconds.
+  
+  - Hourly Meteorological Step (15 min - 1 hr):
+    10 km IMD rainfall grids are downscaled using orographic lapse models and DEM aspect grids:
+        P_downscaled = P_coarse * [1 + zeta * (Z - Z_mean)] * max(0, cos(alpha - psi_wind))
+    Rolling aggregations (P_24h, P_48h, P_72h) and the 40-day Antecedent Precipitation Index (API):
+        API = SUM_{i=1}^{40} [ P_{t-i} * delta^i ] (decay factor delta = 0.85 to 0.92)
+    are updated dynamically.
+
+  - Orbital Cycles (6 - 12 days):
+    MintPy calculates line-of-sight displacement (d_LOS) and deformation velocity (v_LOS). Sentinel-2 
+    optical scenes generate differenced Delta NDVI and binary excavation masks.
+
+----------------------------------------------------------------------------------------------------
+6.2. STAGE 2: MECHANISTIC GEOTECHNICAL PHYSICS SOLVER & EMPIRICAL TRIPPING
+----------------------------------------------------------------------------------------------------
+* Pedotransfer (PTF) Inversion:
+  Evaluates sand/silt/clay fractions through van Genuchten formulations:
+      Theta = (theta - theta_r) / (theta_s - theta_r) = [ 1 + (alpha * |psi_m|)^n ]^(-m)
+  extracting matric suction (psi_m) and saturated hydraulic conductivity (K_sat) from raw volumetric 
+  soil moisture readings (theta).
+
+* Modified Mohr-Coulomb Factor of Safety (FoS):
+  Solves the infinite slope stability equation for unsaturated soil:
+      FoS = [ c' + c_r(t) + ((gamma_sat - gamma_w) * z * cos^2(beta) - u_w) * tan(phi') + (psi_m * S_r) * tan(phi^b) ]
+            / [ gamma_sat * z * sin(beta) * cos(beta) ]
+
+* Dynamic Root Cohesion Decay on Jhum Slopes:
+  Root cohesion c_r(t) dynamically decays on shifting cultivation fallow plots:
+      c_r(t) = c_0 * exp(-kappa * t_fallow)
+  where c_0 = 15 kPa, and kappa is calibrated against the 18-36 month fallow cycle.
+  Failure depth z is continuously bounded using 1D electrical resistivity array inversions.
+
+* Regional Rainfall Empirical Threshold Evaluation:
+  Compares instantaneous rainfall intensity (I) and duration (D) to the regional empirical baseline:
+      I_crit = 5.8294 * D^(-0.4141)
+  If a clogged drain is logged via the Culvert Vulnerability Index (CVI), the threshold is penalized:
+      I_crit_adjusted = I_crit * 0.70
+
+----------------------------------------------------------------------------------------------------
+6.3. STAGE 3: MULTI-MODEL ENSEMBLE STACKING, TOPOLOGICAL GNN & PINN
+----------------------------------------------------------------------------------------------------
+* Graph WaveNet Topology:
+  Micro-catchments are modeled as directed topological graphs. Graph WaveNet learns hidden hydrological 
+  links through temporal dilated causal convolutions and adaptive adjacency matrices:
+      A_adaptive = Softmax(ReLU(E_1 * E_2^T))
+  passing subsurface pore-pressure and saturation states across adjacent terrain cells.
+
+* Multi-Tree & Deep Tabular Ensemble:
+  The unified feature vector (X_i) is evaluated across five distinct models:
+  - CatBoost: Evaluates categorical lithology, rock weathering, and structural lineament classes.
+  - LightGBM: High-throughput evaluation of rolling 40-day weather histograms.
+  - XGBoost: Resolves non-linear geometric curvature and InSAR velocity interactions.
+  - TabNet / MLP: Learns smooth failure manifolds, preventing step-function artifacts from minor angle shifts.
+  - PINN Solver: Enforces mass conservation and Richards' unsaturated flow mechanics into the loss:
+        L_total = L_MSE(y, y_hat) + lambda_1 * L_Richards(theta, psi_m) + lambda_2 * ReLU(1.0 - FoS)
+
+* Stacking Meta-Learner:
+  Base probability vectors pass into a regularized Ridge Logistic Regression / Constrained NNLS meta-model 
+  that weights individual models based on local geology and event dynamics.
+
+* Treelite Native C-Compilation:
+  Trained tree models are compiled into branchless native C shared libraries (.so), reducing inference 
+  latency to under 1.2 ms per 10,000 grid cells.
+
+* Event-Driven Spatial Delta Compute:
+  Full inference runs only on cells breaching dynamic variance limits (Delta P_1h >= 2.5 mm, Delta VWC >= 4%, 
+  or Delta Tilt >= 0.2 deg). Quiescent slopes reuse cached scores with exponential time-decay, slashing 
+  compute overhead by 75%+.
+
+* Deterministic Safety Overrides:
+  - If Sentinel-2 detects fresh toe cutting AND S_r >= 85%, or
+  - If an NCS tremor (M >= 3.0) occurs near an unstable slope (FoS <= 1.20),
+  the system bypasses probabilistic outputs and forces state directly to WARNING or CRITICAL.
+
+----------------------------------------------------------------------------------------------------
+6.4. STAGE 4: UNCERTAINTY QUANTIFICATION (SPATIAL CONFORMAL) & EXPLAINABILITY (TreeSHAP)
+----------------------------------------------------------------------------------------------------
+* Spatial Locally Weighted Conformal Prediction:
+  Instead of assuming global data exchangeability, the system computes non-conformity quantiles weighted 
+  by spatial distance kernels:
+      q_hat(x_target) = WeightedQuantile(s_i, 1 - alpha; K(d(x_target, x_i)))
+  Outputs mathematically bounded dual metrics:
+      "Risk: 87% | Confidence: 74%"
+
+* Real-Time TreeSHAP:
+  TreeSHAP calculates exact Shapley values in polynomial time (O(M * L * D^2)), extracting the top three 
+  physical drivers for the API:
+  ```json
+  {
+    "risk_pct": 87.4,
+    "confidence_pct": 74.1,
+    "status": "WARNING",
+    "top_drivers": [
+      {"factor": "72h Antecedent Precipitation", "weight_pct": 58.2},
+      {"factor": "Topographic Slope (>38 deg)", "weight_pct": 23.6},
+      {"factor": "Active Road-Cut Toe Excavation", "weight_pct": 18.2}
+    ]
+  }
+  ```
+
+----------------------------------------------------------------------------------------------------
+6.5. STAGE 5: KINEMATIC RUNOUT & DEBRIS IMPACT MODELING (FNO SURROGATE / FLOW-R / DoD)
+----------------------------------------------------------------------------------------------------
+* Fourier Neural Operator (FNO) Surrogate:
+  An FNO trained on 2D Voellmy-fluid equations replaces slow iterative Monte Carlo simulations, generating 
+  runout inundation envelopes (10%, 50%, 90% contours) across a 1000 x 1000 elevation raster in under 45 milliseconds.
+
+* Flow-R Empirical Formulation (Fallback):
+  Computes cell-to-cell energy balance and Holmgren spreading:
+      E_kin^i = E_kin^{i-1} + Delta h * g - g * Delta x * tan(phi_travel)
+      p_ij = (tan(beta_ij))^x / SUM [ (tan(beta_ik))^x ]
+
+* Differential DEM (DoD) Debris Volume Triage:
+  Subtracts pre-event Cartosat DEMs from post-event drone photogrammetry to generate a 3D Debris Thickness 
+  Heatmap, mapping buried road surfaces and potential survivor voids for NDRF teams.
+
+----------------------------------------------------------------------------------------------------
+6.6. STAGE 6: THE ISOLATION-IMPACT TWIN & SUPPLY DEPLETION ENGINE
+----------------------------------------------------------------------------------------------------
+* Dynamic Graph Invalidation:
+  The 90% runout polygon is intersected with road vectors in PostGIS. The intersected edge is removed:
+      G' = G \ { e_hazard }
+
+* High-Speed Topological Routing:
+  Rustworkx executes Dijkstra and depth-first traversals across 50,000+ nodes in under 15 milliseconds, 
+  identifying isolated downstream subgraphs (V_isolated).
+
+* Infrastructure Chokepoint Multipliers:
+  Applies structural duration multipliers to severed edges:
+  - Open Road: 1.0x baseline
+  - Narrow Cutting / Blind Curve: 1.8x baseline
+  - Culvert Drainage Zone: 2.5x baseline
+  - Bridge / Viaduct Abutment: 8.0x baseline
+
+* Multi-Modal Pathfinding:
+  Maintains separate vehicular (NDRF/PDS) and pedestrian ridge evacuation graphs.
+
+* Demographic & Transit Scaling:
+  Isolated subgraphs are overlaid on WorldPop grids and scaled using live FASTag highway toll counts:
+      P_total_isolated = SUM_{v in V_isolated} [ WorldPop(v) * (1 + (FASTag_actual - FASTag_baseline) / Cap_resident) ]
+
+* PDS & Essential Inventory Depletion Tracker:
+  Compares road clearance times against local grain, fuel, and medical buffer stocks in local Public 
+  Distribution System (PDS) and FCI depots:
+      DaysToDepletion = CurrentStock_grain_fuel(kg, L) / (DailyConsumptionRate * P_total_isolated)
+  If clearance time exceeds reserves, priority escalates to Air-Drop Evacuation Required.
+
+----------------------------------------------------------------------------------------------------
+6.7. STAGE 7: AUTONOMOUS EDGE ACTUATION, GOVERNANCE & CRYPTOGRAPHIC LEDGER
+----------------------------------------------------------------------------------------------------
+* Direct Edge LoRa Actuation:
+  Cluster nodes broadcast an encrypted sub-GHz LoRa command directly to drop-arm boom barriers and 
+  Variable Message Signs (VMS) 1 km upstream and downstream, halting traffic within seconds.
+
+* SCADA Electrical Grid Islanding:
+  High-priority workers send trip commands over Modbus-TCP/IEC-104 to power distribution substations, 
+  opening circuit breakers and de-energizing 11 kV / 33 kV lines before they snap.
+
+* Administrative SOP & CAP Generation:
+  - CAP XML Engine: Generates ITU-T X.1303-compliant XML payloads for national cell-broadcast systems.
+  - Local RAG Pipeline: Quantized Llama-3-8B (or Llama-3.2-3B) queries a pgvector store of state disaster 
+    manuals, generating a jurisdictionally compliant evacuation order (PDF) for 1-click District Magistrate authorization.
+  - Sunset Travel Gating: If models predict overnight collapse, the SOP prompts authorities to issue 
+    daytime travel restrictions before nightfall.
+
+* Cryptographic Audit Ledger (SHA-256):
+  Every raw sensor packet, risk score, SOP draft, and administrative sign-off is hashed into an append-only 
+  chain in PostgreSQL:
+      H_n = SHA-256( H_{n-1} || Timestamp || PayloadType || JSON(PayloadData) )
+  providing an immutable evidentiary record for judicial or administrative reviews.
+
+
+
+====================================================================================================
+7. FALSE-ALARM SUPPRESSION, COLD-START & TRAINING RELIABILITY
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+7.1. ANTI-"CRY WOLF" HYSTERESIS & SUSTAINED PLASTIC DEFORMATION VERIFICATION
+----------------------------------------------------------------------------------------------------
+To prevent false alarms from wildlife contact, wind gusts, or heavy road-roller compaction machinery:
+* Transient Shock Rejection:
+  A sudden spike (Delta theta > 3 deg for < 3 seconds) that returns to resting baseline is classified as 
+  an `IMPACT_VIBRATION_SHOCK` and logged without triggering alerts.
+* Sustained Deformation Requirement:
+  An emergency warning requires **Sustained Plastic Deformation**: the tilt angle must remain breached 
+  for at least **8 consecutive seconds**, or exhibit a continuous non-zero angular creep velocity:
+      dtheta / dt >= 0.05 deg / min
+  verified across at least 2 adjacent nodes via the k-out-of-n spatial consensus rule.
+
+----------------------------------------------------------------------------------------------------
+7.2. DAY-ZERO COLD-START PROTOCOL (14-DAY SENSOR BURN-IN & CALIBRATION)
+----------------------------------------------------------------------------------------------------
+When hardware is newly deployed on an un-instrumented slope, statistical ML models lack historical baselines:
+* Phase 1: Burn-In Mode (Days 1 to 14):
+  - Risk scoring relies strictly on **Pillar 2 (Mechanistic Physics: Cartosat DEM + GSI Lithology + Mohr-Coulomb FoS + Regional Rainfall Equation)**.
+  - Sensors collect ambient background distributions to establish resting baseline (theta_rest, resting VWC, ambient seismic RMS).
+* Phase 2: Ensemble Mode (Day 15 onwards):
+  - Machine learning models (XGBoost, TabNet, GNN) activate automatically once baselines are locked.
+
+----------------------------------------------------------------------------------------------------
+7.3. SPATIAL BLOCK CROSS-VALIDATION (2 KM BUFFER) & ANTI-LEAKAGE PROTOCOL
+----------------------------------------------------------------------------------------------------
+* Spatial Cluster Blocking:
+  Partitions folds by Hydrological Catchment Basins (HydroSHEDS Level 10) or 5 km x 5 km spatial blocks.
+* 2 km Dead-Zone Buffer:
+  Enforces a 2 km dead-zone buffer between training and testing sets. Cells within the buffer are dropped 
+  completely to prevent spatial autocorrelation leakage.
+* 14-Day Temporal Embargo:
+  Applies a 14-day temporal embargo after each major storm event to eliminate antecedent moisture leakage.
+
+----------------------------------------------------------------------------------------------------
+7.4. HIERARCHICAL MODEL DEGRADATION MATRIX (TIER 1 TO TIER 4 OPERATIONAL FALLBACK)
+----------------------------------------------------------------------------------------------------
+When satellite InSAR suffers dense canopy decorrelation or physical sensors drop offline, the engine 
+automatically drops to the highest viable operational tier:
+
+[Operational State] ---> Inputs Available?
+                              |
+  +---------------------------+---------------------------+
+  |                           |                           |
+  v                           v                           v
+[Tier 1: Full Ensemble]     [Tier 2: InSAR Blind]       [Tier 3: Sensor Outage]
+- All Satellite InSAR       - Ground IoT Sensors        - Only Cartosat DEM
+- Ground Edge IoT           - IMD Downscaled Rain       - IMD Downscaled Rain
+- IMD Meteo Grids           - DEM Topography            - ICAR-NBSS Soil PTF
+- Target: Stacking Meta-    - Target: LightGBM +        - Target: Mechanistic FoS
+  Learner (XGB+Cat+LGBM)      Graph WaveNet               + I = 5.8294 * D^(-0.4141)
+
+* Tier 1: Optimal Mode (Coherence gamma >= 0.35, Edge Nodes Online)
+  Runs full Stacking Ensemble + FNO Runout Surrogate. Full dual metrics (Risk % & Confidence %) and 
+  TreeSHAP physical drivers active.
+* Tier 2: InSAR Blind Mode (Monsoon Dense Cloud Cover, gamma < 0.35)
+  Runs LightGBM + Graph WaveNet + Mohr-Coulomb FoS. Conformal prediction intervals widen, capping confidence at 75%.
+* Tier 3: Degraded IoT Mode (Battery Cutoff, Radio Jamming, Physical Destruction)
+  Spatio-temporal Ordinary Kriging interpolates missing pore pressures; flags telemetry data as imputed.
+* Tier 4: Minimal Physics Mode (Complete Telecom & Cloud Blackout)
+  Reverts strictly to deterministic Mohr-Coulomb calculation + GSI Empirical Rainfall curve (I = 5.8294 * D^(-0.4141)); 
+  outputs "Physics-Only Safety Mode".
+
+
+----------------------------------------------------------------------------------------------------
+7.5. ACTIVE LEARNING & SENSOR DRIFT TRACKING (WASSERSTEIN DISTANCE / PSI)
+----------------------------------------------------------------------------------------------------
+* Verified Aapda Mitra field reports feed into an Active Learning queue to retrain conformal non-conformity quantiles.
+* Workers calculate Population Stability Index (PSI) and Wasserstein Distance on rolling 48-hour streams. 
+  If drift exceeds 0.2, the system prompts recalibration and weights physics-based FoS models higher.
+
+
+====================================================================================================
+8. ADMINISTRATIVE GOVERNANCE, RBAC & LEGAL COMPLIANCE
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+8.1. LOCAL GOVERNMENT DIRECTORY (LGD) ADMINISTRATIVE SCOPING
+----------------------------------------------------------------------------------------------------
+To prevent jurisdictional confusion along interstate corridors (e.g., NH-06 spanning Assam and Meghalaya), 
+every corridor sector, road edge, and village is tagged with its official Census / Panchayati Raj **LGD District Code** 
+(e.g., East Khasi Hills = `LGD_272`, Kamrup Metro = `LGD_288`). Alerts route exclusively to the designated 
+District Magistrate and DEOC.
+
+----------------------------------------------------------------------------------------------------
+8.2. DISASTER MANAGEMENT ACT 2005 (SECTION 34) HUMAN-IN-THE-LOOP (HITL) WORKFLOW
+----------------------------------------------------------------------------------------------------
+Under Section 34 of the Disaster Management Act, 2005, mandatory evacuation authority resides exclusively 
+with the District Magistrate / DDMA Chairman.
+* Workflow:
+  1. System detects CRITICAL risk -> Generates draft evacuation order, traffic detour, and affected population count.
+  2. DM / Addl. DM receives high-priority push notification and reviews the 3D terrain profile.
+  3. DM enters a secure 6-digit PIN / Passkey -> Clicks `AUTHORIZE EVACUATION ORDER`.
+  4. Backend automatically releases the ITU-T X.1303 CAP XML cell broadcast and records the authorization 
+     hash into the cryptographic audit ledger.
+
+----------------------------------------------------------------------------------------------------
+8.3. ROLE-BASED ACCESS CONTROL (RBAC)
+----------------------------------------------------------------------------------------------------
+* `ROLE_PUBLIC`: View public hazard tiles, report geotagged road damage via WhatsApp.
+* `ROLE_VOLUNTEER` (Aapda Mitra): Receives task dispatches to verify cracks within 3 km; toggles verification flags.
+* `ROLE_OPERATOR` (DEOC Control Room): Monitors sensor health, reviews incoming telemetry, drafts evacuation proposals.
+* `ROLE_MAGISTRATE` (District Magistrate / DDMA Chairman): Sole authorized role with rights to execute emergency orders.
+
+----------------------------------------------------------------------------------------------------
+8.4. NDMA SACHET (ITU-T X.1303 CAP) XML SCHEMA (XSD) VALIDATION
+----------------------------------------------------------------------------------------------------
+All generated Common Alerting Protocol XML payloads are strictly validated against the official ITU-T X.1303 
+XML Schema Definition (`xsd:schema`) via `lxml` prior to dispatch, guaranteeing 100% acceptance by national 
+telecom cell-broadcast gateways.
+
+----------------------------------------------------------------------------------------------------
+8.5. CRYPTOGRAPHIC SHA-256 STATE CHAIN & AUDIT LEDGER SPECIFICATIONS
+----------------------------------------------------------------------------------------------------
+Every critical action is chained in the `audit_ledger` table:
+    Block_Hash = SHA-256( Previous_Hash || Timestamp || Payload_Type || JSON_Payload )
+providing an immutable, tamper-proof evidentiary audit trail for post-disaster judicial and administrative inquiries.
+
+
+====================================================================================================
+9. PRODUCTION DATABASE SCHEMAS & STORED PROCEDURES
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+9.1. DATABASE CONFIGURATION & CORE RELATIONAL / SPATIAL TABLES (init.sql)
+----------------------------------------------------------------------------------------------------
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- 1. SENSORS (Hardware Registry)
+CREATE TABLE sensors (
+    id SERIAL PRIMARY KEY,
+    sensor_id TEXT UNIQUE NOT NULL,
+    sensor_type TEXT NOT NULL CHECK (sensor_type IN ('inclinometer', 'geophone', 'ert', 'rtk_gnss', 'fbg', 'turbidity', 'event_camera')),
+    location GEOMETRY(Point, 4326) NOT NULL,
+    installation_angle_offset FLOAT DEFAULT 0.0,
+    firmware_version TEXT DEFAULT 'v1.0.0-esp32s3',
+    active_status BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_sensors_location ON sensors USING GIST(location);
+
+-- 2. TELEMETRY_READINGS (TimescaleDB Hypertable)
+CREATE TABLE telemetry_readings (
+    id BIGSERIAL,
+    sensor_id TEXT REFERENCES sensors(sensor_id),
+    recorded_at TIMESTAMPTZ NOT NULL,
+    pitch FLOAT,
+    roll FLOAT,
+    tilt_velocity FLOAT,
+    vwc_pct FLOAT,
+    pore_pressure FLOAT,
+    matric_suction FLOAT,
+    apparent_resistivity FLOAT,
+    ae_count INT,
+    vpp_mv FLOAT,
+    brittle_trip BOOLEAN DEFAULT FALSE,
+    delta_x_mm FLOAT,
+    delta_y_mm FLOAT,
+    delta_z_mm FLOAT,
+    battery_v FLOAT,
+    battery_soc_pct FLOAT,
+    solar_vpv FLOAT,
+    internal_temp_c FLOAT,
+    rssi_dbm FLOAT,
+    snr_db FLOAT,
+    sequence_id BIGINT
+);
+SELECT create_hypertable('telemetry_readings', 'recorded_at', chunk_time_interval => INTERVAL '7 days', if_not_exists => TRUE);
+CREATE INDEX idx_telemetry_sensor_time ON telemetry_readings (sensor_id, recorded_at DESC);
+
+-- 3. QUARANTINE_TELEMETRY (Dead-Letter Queue Storage)
+CREATE TABLE quarantine_telemetry (
+    id BIGSERIAL PRIMARY KEY,
+    raw_payload BYTEA,
+    rejection_reason TEXT NOT NULL,
+    source_ip TEXT,
+    received_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. RISK_ZONES (Spatial Corridor Sectors with LGD Scoping)
+CREATE TABLE risk_zones (
+    id SERIAL PRIMARY KEY,
+    zone_name TEXT UNIQUE NOT NULL,
+    corridor_code TEXT NOT NULL,
+    lgd_district_code TEXT NOT NULL, -- Census / Panchayati Raj District Code
+    boundary GEOMETRY(Polygon, 4326) NOT NULL,
+    current_risk TEXT DEFAULT 'LOW' CHECK (current_risk IN ('LOW', 'MODERATE', 'HIGH', 'CRITICAL')),
+    risk_source TEXT DEFAULT 'ensemble_model' CHECK (risk_source IN ('physics_floor', 'ensemble_model', 'expert_override', 'edge_tripwire')),
+    ml_risk_pct FLOAT,
+    ml_confidence_pct FLOAT,
+    fos_value FLOAT,
+    rainfall_intensity_mmhr FLOAT,
+    antecedent_precip_40d FLOAT,
+    insar_velocity_mmyr FLOAT,
+    shap_drivers JSONB,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_risk_zones_boundary ON risk_zones USING GIST(boundary);
+
+-- 5. ROAD_EDGES (Graph Representation with Chokepoint Multipliers)
+CREATE TABLE road_edges (
+    id SERIAL PRIMARY KEY,
+    osm_id BIGINT,
+    u_node BIGINT NOT NULL,
+    v_node BIGINT NOT NULL,
+    geometry GEOMETRY(LineString, 4326) NOT NULL,
+    associated_zone_id INT REFERENCES risk_zones(id),
+    highway_type TEXT NOT NULL,
+    length_m FLOAT NOT NULL,
+    chokepoint_type TEXT DEFAULT 'OPEN_ROAD' CHECK (chokepoint_type IN ('OPEN_ROAD', 'NARROW_CUTTING', 'CULVERT', 'BRIDGE')),
+    structural_duration_multiplier FLOAT DEFAULT 1.0,
+    is_severed BOOLEAN DEFAULT FALSE,
+    is_strategic_defence BOOLEAN DEFAULT FALSE,
+    culvert_vulnerability_index FLOAT DEFAULT 0.0,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_road_edges_geom ON road_edges USING GIST(geometry);
+
+-- 6. VILLAGES & CRITICAL FACILITIES (Demographics & LGD Scoping)
+CREATE TABLE villages (
+    id SERIAL PRIMARY KEY,
+    village_name TEXT NOT NULL,
+    lgd_district_code TEXT NOT NULL,
+    location GEOMETRY(Point, 4326) NOT NULL,
+    permanent_population INT NOT NULL,
+    pds_grain_stock_kg FLOAT DEFAULT 5000.0,
+    pds_fuel_stock_litres FLOAT DEFAULT 1200.0,
+    daily_consumption_burn_rate FLOAT DEFAULT 1.2,
+    has_primary_health_centre BOOLEAN DEFAULT FALSE,
+    has_school BOOLEAN DEFAULT TRUE,
+    nearest_helipad_location GEOMETRY(Point, 4326)
+);
+CREATE INDEX idx_villages_location ON villages USING GIST(location);
+
+-- 7. ISOLATION_EVENTS (Cascading Impact Logs)
+CREATE TABLE isolation_events (
+    id SERIAL PRIMARY KEY,
+    zone_id INT REFERENCES risk_zones(id),
+    severed_edge_ids INT[],
+    isolated_village_ids INT[],
+    permanent_pop_affected INT NOT NULL,
+    transient_pop_affected INT DEFAULT 0,
+    total_pop_isolated INT NOT NULL,
+    estimated_blockage_days FLOAT NOT NULL,
+    pds_stockout_horizon_days FLOAT NOT NULL,
+    airdrop_priority_level TEXT DEFAULT 'NONE' CHECK (airdrop_priority_level IN ('NONE', 'SCHEDULED', 'URGENT', 'CRITICAL')),
+    detected_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 8. REPORTS (Crowdsourced Citizen & Patrol Feeds)
+CREATE TABLE reports (
+    id SERIAL PRIMARY KEY,
+    submitter_phone TEXT,
+    location GEOMETRY(Point, 4326) NOT NULL,
+    image_url TEXT,
+    ai_classification TEXT CHECK (ai_classification IN ('Rockfall', 'Tension Crack', 'Debris Slump', 'Blocked Culvert', 'Normal')),
+    ai_confidence_pct FLOAT,
+    crack_width_cm FLOAT,
+    verified_by_volunteer BOOLEAN DEFAULT FALSE,
+    volunteer_id TEXT,
+    submitted_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_reports_location ON reports USING GIST(location);
+
+-- 9. SOP_EVACUATION_ORDERS (HITL Administrative Governance)
+CREATE TABLE sop_evacuation_orders (
+    id SERIAL PRIMARY KEY,
+    zone_id INT REFERENCES risk_zones(id),
+    lgd_district_code TEXT NOT NULL,
+    dm_authorized BOOLEAN DEFAULT FALSE,
+    authorized_by TEXT,
+    authorized_at TIMESTAMPTZ,
+    order_pdf_url TEXT,
+    cap_alert_xml TEXT,
+    sunset_gating_triggered BOOLEAN DEFAULT FALSE,
+    scADA_grid_islanded BOOLEAN DEFAULT FALSE,
+    lora_barrier_actuated BOOLEAN DEFAULT FALSE,
+    generated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. AUDIT_LEDGER (Cryptographic SHA-256 State Chain)
+CREATE TABLE audit_ledger (
+    id BIGSERIAL PRIMARY KEY,
+    previous_hash TEXT NOT NULL,
+    block_hash TEXT NOT NULL,
+    payload_type TEXT NOT NULL CHECK (payload_type IN ('TELEMETRY', 'RISK_SCORE', 'SOP_ORDER', 'BARRIER_ACTUATION', 'SCADA_TRIP', 'VOLUNTEER_VERIFY')),
+    payload_data JSONB NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX idx_audit_created ON audit_ledger (created_at DESC);
+
+-- 11. DISASTER_MANUAL_CHUNKS (RAG Vector Store)
+CREATE TABLE disaster_manual_chunks (
+    id SERIAL PRIMARY KEY,
+    state TEXT NOT NULL,
+    document_title TEXT NOT NULL,
+    chunk_content TEXT NOT NULL,
+    embedding vector(384)
+);
+
+----------------------------------------------------------------------------------------------------
+9.2. TIMESCALEDB COMPRESSION POLICIES & HYPERTABLE RETENTION
+----------------------------------------------------------------------------------------------------
+ALTER TABLE telemetry_readings SET (
+    timescaledb.compress,
+    timescaledb.compress_segmentby = 'sensor_id',
+    timescaledb.compress_orderby = 'recorded_at DESC'
+);
+SELECT add_compression_policy('telemetry_readings', INTERVAL '14 days');
+SELECT add_retention_policy('telemetry_readings', INTERVAL '365 days');
+
+----------------------------------------------------------------------------------------------------
+9.3. DYNAMIC POSTGIS MVT GENERATION STORED PROCEDURE
+----------------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION get_risk_zone_mvt(z integer, x integer, y integer)
+RETURNS bytea AS $$
+DECLARE
+    result bytea;
+BEGIN
+    WITH bounds AS (
+        SELECT ST_TileEnvelope(z, x, y) AS geom
+    ),
+    mvtgeom AS (
+        SELECT 
+            rz.id,
+            rz.zone_name,
+            rz.current_risk,
+            rz.ml_risk_pct,
+            rz.ml_confidence_pct,
+            rz.fos_value,
+            ST_AsMVTGeom(ST_Transform(rz.boundary, 3857), bounds.geom) AS geom
+        FROM risk_zones rz, bounds
+        WHERE ST_Intersects(ST_Transform(rz.boundary, 3857), bounds.geom)
+    )
+    SELECT ST_AsMVT(mvtgeom.*, 'hazard_zones') INTO result FROM mvtgeom;
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql STABLE PARALLEL SAFE;
+
+
+====================================================================================================
+10. IMPLEMENTATION ROADMAP, SIMULATION HARNESS & DIVISION OF LABOUR
+====================================================================================================
+
+----------------------------------------------------------------------------------------------------
+10.1. MEMBER 2 VS. MEMBER 3 RESPONSIBILITY & HANDOFF MATRIX
+----------------------------------------------------------------------------------------------------
++----------------------+----------------------------------------------+----------------------------------------------+
+| Domain               | Member 2 (Geospatial Data Platform Engineer) | Member 3 (Geotechnical AI & Kinematics Eng.) |
++----------------------+----------------------------------------------+----------------------------------------------+
+| Edge Ingestion       | Binary unpacker (20-byte), Redpanda DLQ,     | Evaluates conditioned features, specifies    |
+|                      | HMAC auth, sensor temperature offset logic.  | SNN micro-acoustic fracture thresholds.      |
++----------------------+----------------------------------------------+----------------------------------------------+
+| Geospatial Engine    | PostGIS schema, Martin MVT vector tile API,  | D8 surface flow lines, topographic wetness   |
+|                      | GDAL/Rasterio 10m UTM reprojection, H3 index.| index (TWI) and planform curvature tensors.  |
++----------------------+----------------------------------------------+----------------------------------------------+
+| Feature Store        | Redis flat array manager, rolling 72h ZSET   | Treelite batch reading, zero-copy feature    |
+|                      | precipitation aggregation, circuit breakers. | consumption for sub-2ms inference.           |
++----------------------+----------------------------------------------+----------------------------------------------+
+| Physics Solver       | Ingests ICAR-NBSS soil grids & borehole logs;| Solves van Genuchten retention curves,       |
+|                      | stores pore-water pressure time-series.      | Mohr-Coulomb FoS, Jhum root decay functions. |
++----------------------+----------------------------------------------+----------------------------------------------+
+| Predictive ML        | Event-driven spatial delta compute trigger,  | Multi-model ensemble (CatBoost, LightGBM,    |
+|                      | dead-sensor Kriging spatial imputation.      | TabNet), Treelite native C compilation (.so).|
++----------------------+----------------------------------------------+----------------------------------------------+
+| Uncertainty & XAI    | Queries historical GSI Bhukosh events for    | Spatial locally weighted conformal bounds    |
+|                      | non-conformity calibration sets.             | (MAPIE), TreeSHAP feature attribution.       |
++----------------------+----------------------------------------------+----------------------------------------------+
+| Runout & Twin        | Highway OSMnx graph ingestion, demographic   | 2D FNO shallow water surrogate inference,    |
+|                      | WorldPop intersection, FASTag ingestion.     | Rustworkx graph severing, PDS burn tracking. |
++----------------------+----------------------------------------------+----------------------------------------------+
+| Citizen Verification | Twilio/WhatsApp webhook receiver, stores     | YOLOv11-Seg + SAM-2 metrology pipeline,      |
+|                      | raw citizen photo media in MinIO.            | camera focal-length metric crack calculator. |
++----------------------+----------------------------------------------+----------------------------------------------+
+
+----------------------------------------------------------------------------------------------------
+10.2. PHASE-WISE SPRINT PLAN
+----------------------------------------------------------------------------------------------------
+* Phase 1: Ingestion Pipelines, Dual-Profiles & Core Schemas (Sprint 1)
+  1. Deploy PostgreSQL 16 + PostGIS 3.4 + TimescaleDB containers with table partitioning.
+  2. Implement dual Docker Compose profiles (Profile A GPU vs Profile B Laptop CPU).
+  3. Implement 20-byte binary LoRa unpacker and gateway batch endpoint (`POST /telemetry/binary-batch`).
+  4. Validate sensor data ingest at 1,000 packets/sec with < 20 ms insertion latency.
+
+* Phase 2: Hybrid Physics, H3 Binning & Multi-Model Stacking (Sprint 2)
+  1. Implement unsaturated soil mechanics solver (van Genuchten PTF + Mohr-Coulomb FoS).
+  2. Implement Uber H3 index binning and 800m highway corridor buffer filtering.
+  3. Train base models (CatBoost, LightGBM, XGBoost, TabNet) with 2 km Spatial Block Cross-Validation.
+  4. Compile tree models into native C shared libraries via Treelite.
+  5. Implement Spatial Locally Weighted Conformal Prediction and TreeSHAP feature explanations.
+
+* Phase 3: Kinematic Runout & The Isolation-Impact Twin (Sprint 3)
+  1. Train and deploy the Fourier Neural Operator (FNO) 2D shallow-water surrogate.
+  2. Build the North Eastern highway graph in Rustworkx / OSMnx with chokepoint multipliers.
+  3. Implement dynamic edge severance, WorldPop demographic aggregation, and PDS depletion tracking.
+
+* Phase 4: Field Verification, Governance, RBAC & CAP Integration (Sprint 4)
+  1. Deploy YOLOv11-Seg + SAM-2 computer vision pipeline for WhatsApp crack metrology.
+  2. Build Aapda Mitra automated task-dispatch loop using PostGIS spatial radius queries (< 3 km).
+  3. Implement HITL DM Evacuation Order authorization workflow with LGD district scoping.
+  4. Assemble ITU-T X.1303 CAP XML outputs with strict XSD validation and SHA-256 cryptographic audit chaining.
+
+* Phase 5: Hardware-in-the-Loop Validation & Field Deployment (Sprint 5)
+  1. Flash ESP32-S3 firmware with SNN micro-acoustic listening, temperature drift compensation, and adaptive duty cycling.
+  2. Validate physical edge tripwire: sub-GHz LoRa direct boom barrier actuation and Modbus-TCP SCADA substation breaker tripping.
+  3. Conduct failover tests: simulate cellular outages and verify gateway SQLite store-and-forward sync.
+
+----------------------------------------------------------------------------------------------------
+10.3. 1-CLICK CRISIS DISASTER SIMULATION HARNESS (POST /simulation/trigger-crisis)
+----------------------------------------------------------------------------------------------------
+To validate the system deterministically without waiting for active rainstorms during SIH/MDoNER evaluations:
+* The backend exposes `POST /simulation/trigger-crisis` accepting scenario names:
+  `{"scenario": "2022_manipur_noney_landslide"}` or `{"scenario": "nh06_cloudburst_sector_4"}`.
+* Replays a compressed 45-second live crisis sequence:
+  1. Rain gauges ramp from 5 mm/hr to 75 mm/hr; pore-pressure spikes.
+  2. Factor of Safety drops from 1.45 to 0.78; Treelite outputs "Risk: 92% | Confidence: 84%".
+  3. FNO runout models debris path across NH-54 in 42 ms.
+  4. Rustworkx computationally severs edge and identifies 4 cut-off villages (1,840 residents).
+  5. The DM Dashboard displays the pre-filled 1-Click Evacuation Order ready for authorization.
+
+----------------------------------------------------------------------------------------------------
+10.4. SYNTHETIC CHAOS, FAULT INJECTION & INVARIANT TEST SUITE
+----------------------------------------------------------------------------------------------------
+* Anti-False-Alarm Rejection Test (`tests/test_noise_immunity.py`):
+  Injects transient 50 Hz truck vibrations and 1-second angle spikes; asserts 100% rejection rate.
+* Dead-Sensor Imputation Test (`tests/test_kriging_imputation.py`):
+  Drops 30% of active nodes; asserts Ordinary Kriging imputes missing pore pressures within +/- 8.5% error.
+* Physical Invariant Test (`tests/test_physics_invariants.py`):
+  Asserts that FoS calculations with extreme inputs (VWC = 0% to 100%, Slope = 89 deg) never return NaN or Inf.
+
+
+====================================================================================================
+11. PERFORMANCE & LATENCY SLA MATRIX (BASELINE VS. PRODUCTION UPGRADE)
+====================================================================================================
+
++----------------------------+-----------------------+-----------------------------------+---------------------------------------------------+
+| Pipeline Component         | Target Metric / SLA   | Baseline Architecture             | Upgraded Production Architecture                  |
++----------------------------+-----------------------+-----------------------------------+---------------------------------------------------+
+| Binary Unpacking (LoRa)    | < 0.5 ms per frame    | JSON String Parsing (~12ms)       | Native struct.unpack Binary Decoder (0.12 ms)     |
+| Edge Anomaly Trip          | < 50 ms latency       | Threshold on Raw Accelerometer    | Kalman Filter + On-Chip SNN Audio Classifier      |
+| Spatial Cluster Consensus  | < 2.0 s validation    | Central Cloud Gateway Logic       | Local P2P Sub-GHz LoRa Gossip / Raft Consensus    |
+| Direct Road Barrier Drop   | < 1.5 s execution     | Cloud API -> Cellular -> Motor    | Direct P2P LoRa Mesh Link (Zero Cloud Dependency) |
+| Substation SCADA Trip      | < 250 ms trip         | Manual Phone Dispatch             | High-Priority Modbus-TCP / IEC-104 Relay Socket   |
+| Feature Store Batch Read   | < 1.0 ms per corridor | Multi-Table PostGIS SQL JOIN      | Redis Pipeline Hash Batch Slice (0.4 ms)          |
+| Tree Ensemble Inference    | < 2.0 ms per 10k cells| Python XGBoost Interpreter (~40ms)| Treelite Native C Compilation (1.2 ms)            |
+| Vector Tile (MVT) Delivery | < 30 ms per tile      | GeoJSON Serialization (450ms)     | Direct PostGIS ST_AsMVT Binary Stream (18 ms)     |
+| Runout Inundation Map      | < 50 ms per slide     | Flow-R Monte Carlo (~45 to 180s)  | 2D Fourier Neural Operator Surrogate (42 ms)      |
+| Transportation Graph Cut   | < 20 ms calculation   | Python NetworkX (~1.2s)           | Rustworkx In-Memory Contraction Engine (14 ms)    |
+| Meteo Ingestion & Slicing  | < 3.0 s per district  | GDAL Subprocess Calls             | Xarray Multidimensional Chunked Vectorization     |
+| Sensor Battery Lifespan    | >= 45 days zero sun   | Fixed Polling (15 days)           | Dynamic Adaptive Duty Cycling (15 uA Deep Sleep)  |
+| False Alarm Suppression    | >= 99.8% rejection    | Single-Node Thresholds            | 8s Hysteresis + k-out-of-n Spatial Consensus      |
++----------------------------+-----------------------+-----------------------------------+---------------------------------------------------+
+
+
+====================================================================================================
+12. CODEBASE DIRECTORY STRUCTURE & MODULE ALLOCATION
+====================================================================================================
+
+member1-backend/
+├── Dockerfile
+├── docker-compose.yml               # Multi-Profile: Profile A (GPU) / Profile B (Laptop CPU)
+├── requirements.txt                 # Production Python dependencies
+├── init.sql                         # 11-table schema with PostGIS, TimescaleDB & pgvector
+├── app/
+│   ├── main.py                      # App lifespan, router inclusions, middleware
+│   ├── database.py                  # Async connection pool (asyncpg / databases)
+│   ├── redis_client.py              # In-memory caching & rate-limiting
+│   ├── auth.py                      # API key, HMAC verification & RBAC JWT claims
+│   ├── core/
+│   │   ├── config.py                # Environment variables & runtime profile settings
+│   │   ├── feature_store.py         # Redis real-time H3 feature hash manager (Member 2)
+│   │   └── circuit_breaker.py       # Asynchronous 3-tier external API circuit breaker
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── schemas.py               # Pydantic v2 data models for all 10 modules
+│   ├── routers/
+│   │   ├── __init__.py
+│   │   ├── telemetry.py             # 20-byte binary LoRa & batch ingestion endpoints
+│   │   ├── tiles.py                 # PostGIS ST_AsMVT dynamic binary tile stream
+│   │   ├── risk.py                  # Corridor sector risk evaluation & query
+│   │   ├── reports.py               # Citizen reporting & Aapda Mitra verification
+│   │   ├── network_twin.py          # Rustworkx highway graph severance & cuts
+│   │   ├── governance.py            # HITL 1-click SOP orders, CAP XML & SCADA trips
+│   │   └── simulation.py            # 1-Click Crisis Disaster Simulation Harness
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── physics_engine.py        # van Genuchten PTF, FoS, Hysteresis & rainfall
+│   │   ├── ensemble_engine.py       # Treelite C-compiled CatBoost/XGBoost/LightGBM
+│   │   ├── fno_runout.py            # 2D Fourier Neural Operator runout surrogate
+│   │   ├── isolation_twin.py        # Rustworkx graph solver & WorldPop PDS tracker
+│   │   ├── vision_service.py        # YOLOv11-Seg & SAM-2 damage metrology
+│   │   ├── sop_generator.py         # HITL legal evacuation order PDF generator
+│   │   ├── cap_disseminator.py      # ITU-T X.1303 CAP XML builder with XSD validation
+│   │   └── audit_ledger.py          # SHA-256 cryptographic state chain logger
+│   └── workers/
+│       ├── meteo_ingestion.py       # IMD/MOSDAC downscaling worker (Member 2)
+│       ├── radar_ingestion.py       # GEE/Sentinel InSAR processor (Member 2)
+│       └── dlq_consumer.py          # Quarantined telemetry handler (Member 2)
+├── tests/
+│   ├── test_physics_invariants.py   # Unit tests verifying FoS never produces NaN
+│   ├── test_spatial_leakage.py      # Spatial Block CV isolation validator
+│   ├── test_kriging_imputation.py   # Dead-sensor recovery validation
+│   └── test_noise_immunity.py       # 8-second hysteresis vibration rejection test
+└── scripts/
+    ├── compile_treelite.py          # Compiles tree ensemble to native C (.so)
+    ├── replay_telemetry.py          # Digital Twin historical disaster replay harness
+    └── load_test_locust.py          # High-throughput ingestion stress testing
+
+====================================================================================================
+END OF UNIFIED COMPUTATIONAL BACKEND MASTER PLAN & SPECIFICATION (V3.0.0)
+====================================================================================================

@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# SafeSlope-NER — Production Requirements
+# Covers all computational components from computational_backend_plan.txt v3.0.0
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Core API Framework ────────────────────────────────────────────────────────
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9          # multipart form data for image uploads
+httpx>=0.27.0                    # async HTTP for external API calls
+
+# ── Database ──────────────────────────────────────────────────────────────────
+databases[postgresql]>=0.9.0
+asyncpg>=0.29.0
+sqlalchemy>=2.0.0
+
+# ── Configuration ─────────────────────────────────────────────────────────────
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+
+# ── Caching & Feature Store ───────────────────────────────────────────────────
+redis>=5.0.0                     # Section 5.4 — zero-copy pipeline reads < 0.8ms
+
+# ── Authentication & Security ─────────────────────────────────────────────────
+pyjwt>=2.8.0
+google-auth>=2.29.0
+bcrypt>=4.1.0                    # DM PIN hash (Section 8.2)
+cryptography>=42.0.0
+
+# ── CRC & Binary Parsing ──────────────────────────────────────────────────────
+crcmod>=1.7                      # CRC-16-CCITT for 20-byte frame validation (Section 3.1)
+
+# ── Geospatial ────────────────────────────────────────────────────────────────
+h3>=3.7.7                        # Uber H3 hexagonal binning, Res 9 & 10 (Section 5.3)
+shapely>=2.0.0                   # Geometry operations
+pyproj>=3.6.0                    # CRS reprojection to UTM 46N
+rasterio>=1.3.0                  # DEM / raster processing
+rioxarray>=0.16.0                # Xarray raster extension
+xarray>=2024.1.0                 # N-D array for IMD meteo grids
+geopandas>=0.14.0                # Vector geospatial data frames
+osmnx>=1.9.0                     # OpenStreetMap road network download
+
+# ── Scientific Computing ──────────────────────────────────────────────────────
+numpy>=1.26.0
+scipy>=1.12.0                    # Kriging (RBFInterpolator) for missing sensor imputation
+pandas>=2.1.0
+
+# ── Machine Learning — Tree Ensemble ─────────────────────────────────────────
+catboost>=1.2.5                  # CatBoost classifier (Section 6.3)
+lightgbm>=4.3.0                  # LightGBM classifier (Section 6.3)
+xgboost>=2.0.3                   # XGBoost classifier (Section 6.3)
+scikit-learn>=1.4.0
+
+# ── Treelite — Native C Compilation for < 1.2ms Inference ────────────────────
+treelite>=4.2.0                  # Tree ensemble → native C .so (Section 6.3)
+treelite-runtime>=4.2.0
+
+# ── SHAP Explainability ───────────────────────────────────────────────────────
+shap>=0.45.0                     # TreeSHAP top-3 physical drivers (Section 6.4)
+
+# ── Conformal Prediction ──────────────────────────────────────────────────────
+mapie>=0.8.0                     # Spatial conformal prediction (Section 6.4)
+
+# ── Deep Learning ─────────────────────────────────────────────────────────────
+torch>=2.3.0                     # FNO runout surrogate, PINN, Graph WaveNet
+onnxruntime-gpu>=1.18.0          # ONNX FP16 inference on RTX 5070 Ti (laptop profile)
+neuraloperator>=0.3.0            # Fourier Neural Operator implementation (Section 6.5)
+
+# ── Graph Processing ──────────────────────────────────────────────────────────
+rustworkx>=0.14.0                # High-speed isolation twin graph traversal < 15ms (Section 6.6)
+networkx>=3.2.0                  # OSMnx integration + pedestrian routing
+
+# ── Computer Vision ───────────────────────────────────────────────────────────
+ultralytics>=8.2.0               # YOLOv11-Seg (Section 2.9, citizen WhatsApp imagery)
+# segment-anything-2 installed separately from Meta's GitHub
+
+# ── LLM / RAG ─────────────────────────────────────────────────────────────────
+ollama>=0.2.0                    # Local LLM client — Ollama Llama-3.2-3B (laptop profile)
+pgvector>=0.2.4                  # pgvector Python client for disaster manual RAG
+sentence-transformers>=2.7.0     # all-MiniLM-L6-v2, 384-dim embeddings (Section 5.6)
+
+# ── Governance & Document Generation ─────────────────────────────────────────
+lxml>=5.2.0                      # CAP XML XSD validation (Section 8.4)
+jinja2>=3.1.0                    # SOP template rendering
+reportlab>=4.2.0                 # PDF evacuation order generation (Section 6.7)
+weasyprint>=62.0                 # HTML→PDF alternative for rich SOPs
+
+# ── Circuit Breaker — Government API Fallback ─────────────────────────────────
+pybreaker>=1.2.0                 # IMD / MOSDAC / NCS circuit breakers (Section 4.3)
+tenacity>=8.3.0                  # Retry logic with exponential backoff
+
+# ── Background Scheduling ─────────────────────────────────────────────────────
+apscheduler>=3.10.0              # Meteo ingestion worker every 15 min (Section 6.1)
+
+# ── Testing & Load Testing ────────────────────────────────────────────────────
+pytest>=8.1.0
+pytest-asyncio>=0.23.0
+locust>=2.28.0                   # 1,000 pkt/sec load test (Section 10.4)
+httpx>=0.27.0                    # Async test client
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+aiofiles>=23.2.0
+tqdm>=4.66.0
+pillow>=10.3.0                   # Image processing for vision pipeline
+exifread>=3.0.0                  # EXIF metadata extraction for crack metric measurement

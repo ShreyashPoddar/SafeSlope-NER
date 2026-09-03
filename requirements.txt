@@ -4,6 +4,7 @@ databases[postgresql]
 asyncpg
 redis
 pydantic
+pydantic-settings
 python-multipart
 pyjwt
 google-auth
