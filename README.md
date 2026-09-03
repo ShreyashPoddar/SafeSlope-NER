@@ -1,4 +1,4 @@
-# ResiliNER backend
+# SafeSlope-NER backend
 
 Member 1's API gateway: FastAPI + PostgreSQL/PostGIS + Redis.
 
