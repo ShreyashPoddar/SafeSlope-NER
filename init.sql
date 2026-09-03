@@ -56,10 +56,11 @@ CREATE TABLE reports (
     submitted_at TIMESTAMP DEFAULT now()
 );
 
--- People who've signed in with Google — DDMA officials using the dashboard
+-- People who've signed in via Google or GitHub — DDMA officials using the dashboard
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    google_sub TEXT UNIQUE NOT NULL,
+    google_sub TEXT UNIQUE,
+    github_id TEXT UNIQUE,
     email TEXT UNIQUE NOT NULL,
     name TEXT,
     role TEXT DEFAULT 'viewer',  -- 'viewer' or 'admin'
