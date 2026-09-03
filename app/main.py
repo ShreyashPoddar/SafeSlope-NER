@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import database
 from app.routers import telemetry, risk, reports, villages, auth
 
-app = FastAPI(title="ResiliNER API")
+app = FastAPI(title="SafeSlope-NER API")
 
 # Permissive for the hackathon so Member 5's dashboard (running on a
 # different port) can call this API from the browser. Tighten
@@ -43,7 +43,7 @@ async def shutdown():
 
 @app.get("/")
 def read_root():
-    return {"status": "ResiliNER API running"}
+    return {"status": "SafeSlope-NER API running"}
 
 
 app.include_router(telemetry.router)
