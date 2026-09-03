@@ -46,3 +46,4 @@ logs/
 # dotenv
 .env.local
 .env.*.local
+.env
