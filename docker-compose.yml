@@ -1,0 +1,44 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://resiliner_user:resiliner_pass@db:5432/resiliner}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SERVICE_API_KEY: change-this-shared-key
+      GOOGLE_CLIENT_ID: your-google-client-id.apps.googleusercontent.com
+      JWT_SECRET: change-this-jwt-secret-too
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: resiliner_user
+      POSTGRES_PASSWORD: resiliner_pass
+      POSTGRES_DB: resiliner
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resiliner_user -d resiliner"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

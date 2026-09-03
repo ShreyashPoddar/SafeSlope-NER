@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+databases[postgresql]
+asyncpg
+redis
+pydantic
+python-multipart
+pyjwt
+google-auth
+requests

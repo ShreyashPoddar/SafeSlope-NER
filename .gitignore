@@ -24,7 +24,7 @@ ENV/
 # Data & models (often large, add explicitly if needed)
 data/raw/
 data/processed/
-models/
+/models/
 *.bin
 *.pt
 *.ckpt
