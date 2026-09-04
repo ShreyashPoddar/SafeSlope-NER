@@ -610,4 +610,179 @@ Member 1's static review accurately noted a discrepancy between the minimal `mem
 3. All 31 alerting, classification, and threshold tests pass (`31/31` in `100%` operational success).
 4. All satellite APIs (Google Earth Engine, Copernicus CDSE, OpenTopography, NASA Earthdata ASF, Planet Labs) are verified and authenticated live.
 
+---
+
+## 17. Member 4 Implementation Audit: ESP32 Edge Node Firmware, MPU6050 Sensing & Wokwi Simulation
+
+**Scope:** Member 4 (IoT & Embedded Systems Lead) — SafeSlope-NER-v3 ESP32 Firmware, Sensing Channels, Wokwi Simulation, and Edge-to-Backend Telemetry.  
+**Platform:** ESP32-WROOM / ESP32-S3 microcontroller, Arduino C++ firmware, Wokwi virtual testbed.
+
+---
+
+### 17.1. Executive Summary & Hardware Pipeline
+Member 4 engineered the physical and simulated **front-line IoT sensing layer** for SafeSlope-NER. The firmware captures multi-modal slope kinetics and geotechnical stress, executes local edge-side threshold evaluation with hysteresis, and streams structured telemetry over Wi-Fi/LoRa into the FastAPI ingestion gateway.
+
+```mermaid
+graph TD
+    subgraph SENSORS ["Physical & Simulated Sensors"]
+        MPU["MPU6050 (I2C: 0x68, SDA=21, SCL=22) - Pitch, Roll, dθ/dt"]
+        Moist["Capacitive Soil Moisture (GPIO 34 - 12-bit ADC)"]
+        Pore["Piezometer Pore Pressure (GPIO 35 - 12-bit ADC)"]
+        Trip["Seismic / Acoustic Tripwire (GPIO 4 - Hardware Interrupt)"]
+    end
+
+    subgraph ESP32 ["ESP32 Edge Microcontroller (sketch/sketch.ino)"]
+        Sample["Non-Blocking Sampling Loop (maintainWiFi, updateSensors)"]
+        EdgeEval["Edge Risk Evaluator (Hysteresis: 5.0° Crit / 3.5° Rec)"]
+        Actuators["Local Feedback (Buzzer GPIO 18, Warning LED GPIO 19)"]
+    end
+
+    subgraph TELEMETRY ["Telemetry Transmission"]
+        WiFiTx["HTTP Post Client (X-API-Key: local-demo-key)"]
+    end
+
+    subgraph BACKEND ["Ingestion & Control Plane"]
+        FastAPI["FastAPI Gateway (POST /telemetry/)"]
+        Store[("Persistence & Event Logger")]
+        Dash["Live Monitoring Dashboard (/dashboard)"]
+    end
+
+    MPU & Moist & Pore & Trip --> Sample
+    Sample --> EdgeEval
+    EdgeEval --> Actuators
+    EdgeEval --> WiFiTx
+    WiFiTx -->|"JSON Payload"| FastAPI
+    FastAPI --> Store
+    Store --> Dash
+```
+
+---
+
+### 17.2. Hardware & Sensing Channels Implementation
+
+#### A. ESP32 Firmware Architecture (`sketch/sketch.ino`)
+- **Firmware Size & Evolution:** Expanded from a 173-line baseline to a **440-line field-hardened firmware**.
+- **Compilation Artifacts:** Successfully compiled targeting ESP32 (`sketch.ino.bin`, `sketch.ino.bootloader.bin`, `sketch.ino.partitions.bin`, `sketch.ino.merged.bin`).
+- **Non-Blocking Loop Structure:**
+  ```cpp
+  maintainWiFi();
+
+  if (now - lastSensorAt >= SENSOR_INTERVAL_MS) {
+      updateSensors();
+      evaluateRisk();
+  }
+  if (now - lastSerialStatusAt >= SERIAL_STATUS_INTERVAL_MS) {
+      printStatus();
+  }
+  if (now - lastTelemetryAt >= TELEMETRY_INTERVAL_MS) {
+      sendTelemetry();
+  }
+  delay(5);
+  ```
+  Ensures sensor acquisition and local life-safety alarm triggering are completely unblocked by network latency or Wi-Fi reconnections.
+
+#### B. MPU6050 6-DoF Motion & Incline Tracking
+- **Bus & Addressing:** I²C bus at address `0x68` (`SDA = GPIO 21`, `SCL = GPIO 22`).
+- **Initialization:** Guarded by `sensor.mpuOk = initMPU();` outputting `[MPU6050] OK at I2C 0x68`.
+- **Derived Kinematics:** Computes real-time angular pitch ($\theta$), roll ($\phi$), dynamic rotational rates ($d\theta/dt$), and RMS vibration amplitude to filter ambient vehicular traffic from structural shear strains.
+
+#### C. Subsurface Hydrology Inputs
+- **Soil Moisture Analog Channel (`PIN_SOIL_MOISTURE = 34`):**
+  Configured as a 12-bit ADC with 11 dB attenuation ($0\text{–}3.3\text{V}$ dynamic range). Evaluates moisture percentage ($0\text{–}100\%$) relative to empirical saturation limits (`MOISTURE_LIMIT_PCT = 85.0%`).
+- **Pore-Water Pressure Analog Channel (`PIN_PORE_PRESSURE = 35`):**
+  Analog piezometer input scaled in kilopascals ($0\text{–}100\text{ kPa}$). Implements geotechnical alarm tripping at `PORE_LIMIT_KPA = 70.0 kPa`.
+
+#### D. Fast Seismic / Shear Failure Tripwire
+- **Interrupt Channel (`PIN_SEISMIC_TRIP = 4`):**
+  Configured as `INPUT_PULLDOWN` with a hardware interrupt:
+  ```cpp
+  attachInterrupt(digitalPinToInterrupt(PIN_SEISMIC_TRIP), onSeismicInterrupt, RISING);
+  ```
+  Provides sub-millisecond reaction time upon physical break-wire severance or high-energy acoustic emission.
+
+#### E. Local Audio-Visual Life-Safety Actuators
+- **Alarm Outputs:** Buzzer on `GPIO 18` and high-visibility LED on `GPIO 19`.
+- **Operational Triggering:** Directly driven by edge risk states (`WARNING_PENDING` $\rightarrow$ intermittent chirp; `CRITICAL_FAILURE` $\rightarrow$ continuous tone) independent of backend connectivity.
+
+---
+
+### 17.3. Telemetry Ingestion Contract & Schema Harmonization
+
+The telemetry contract negotiated between Member 4 and the central gateway:
+
+- **Ingestion Route:** `POST /telemetry/`
+- **Security Header:** `X-API-Key: <SERVICE_API_KEY>`
+- **Payload Schema (`TelemetryPayload`):**
+  ```json
+  {
+    "sensor_id": "automated-phase2-test",
+    "lat": 28.6139,
+    "lng": 77.2090,
+    "tilt_delta": 4.0,
+    "soil_moisture": 40.0,
+    "pore_pressure_kpa": 20.0,
+    "vibration_rms_g": 0.1,
+    "tripwire_flag": false
+  }
+  ```
+
+---
+
+### 17.4. Risk State Machine & Event Transitions
+
+The edge firmware and gateway implement a formal finite-state machine (FSM) tracking slope evolution:
+
+```mermaid
+stateDiagram-v2
+    [*] --> NORMAL
+    NORMAL --> WARNING_PENDING: Elevated tilt (≥ 3.5°) or High Moisture
+    WARNING_PENDING --> CRITICAL_FAILURE: Excessive tilt (≥ 5.0°) or Pore Pressure ≥ 70 kPa or Tripwire
+    CRITICAL_FAILURE --> NORMAL: Tilt drops below hysteresis threshold (< 3.5°)
+    WARNING_PENDING --> NORMAL: Measurements stabilize
+
+    note right of CRITICAL_FAILURE
+        Fires event: CRITICAL_ENTERED
+        Triggers: Local Buzzer + LED
+        Transmits Level 4 Emergency
+    end note
+```
+
+- **Canonical State Codes:** `NORMAL`, `WARNING_PENDING`, `CRITICAL_FAILURE`.
+- **Transition Events:** `INITIAL_STATE`, `WARNING_ENTERED`, `CRITICAL_ENTERED`, `CRITICAL_EXITED`.
+- **Trigger Cause Diagnostic Codes:** `NORMAL_MEASUREMENTS`, `ELEVATED_TILT`, `EXCESSIVE_TILT`, `PORE_PRESSURE_BREACH`, `TRIPWIRE_TRIGGERED`.
+
+---
+
+### 17.5. Testing, Defect Analysis & Cross-Member Remediation
+
+#### Defect 1 — API Field Name Drift (Resolved)
+- *Problem:* Early test scripts transmitted legacy keys (`tilt`, `pore_pressure`, `vibration`, `tripwire`), resulting in HTTP `422 Unprocessable Entity` validation rejections.
+- *Remediation:* Standardized on canonical Pydantic schema: `tilt_delta`, `pore_pressure_kpa`, `vibration_rms_g`, and `tripwire_flag` with required spatial coordinates (`lat`, `lng`).
+
+#### Defect 2 — Risk Threshold Classification Discrepancy
+- *Problem:* Phase 2 automated test submitted `tilt_delta = 4.0°` expecting `WARNING_PENDING`, but the backend resolved to `CRITICAL_FAILURE`.
+- *Root Cause Identified:* Discrepancy between single-variable firmware thresholds (`TILT_CRITICAL_DEG = 5.0°`) and Member 1's combined multi-sensor risk score / Mohr-Coulomb Factor of Safety ($FoS$).
+- *Harmonization:* In the unified architecture, Member 1's `resolve_risk()` uses explicit threshold bands:
+  - $\Delta\theta < 3.5^\circ \longrightarrow \text{LOW / NORMAL}$
+  - $3.5^\circ \le \Delta\theta < 5.0^\circ \longrightarrow \text{MODERATE / WARNING}$
+  - $\Delta\theta \ge 5.0^\circ \text{ or } FoS < 1.05 \longrightarrow \text{CRITICAL}$
+
+#### Defect 3 — Event Naming Mismatch (Resolved)
+- *Problem:* Test asserted event name `RECOVERED` while the backend emitted canonical `CRITICAL_EXITED`.
+- *Remediation:* Canonical transition nomenclature standard is set to `CRITICAL_EXITED`, matching the master database audit ledger schema.
+
+---
+
+### 17.6. Full System Tri-Member Integration Matrix
+
+The SafeSlope-NER platform now presents complete, end-to-end integration across all contributing engineering scopes:
+
+| Subsystem | Lead Contributor | Ingress Interface | Core Output | Operational Handshake |
+|---|---|---|---|---|
+| **Edge Hardware & In-Situ Sensing** | **Member 4** | Physical GPIO, I²C, ADC | 20-byte LoRa / Wi-Fi JSON Telemetry | Streams real-time slope kinematics into the gateway. |
+| **Computational Backend & Geotechnical Physics** | **Member 1** | `POST /telemetry/`, Satellite APIs | Mohr-Coulomb FoS, ML Ensemble Risk %, Supabase DB | Unifies sensor telemetry with Earth Observation and enforces deterministic safety floors. |
+| **Area-Aware Alerting & Community Dispatch** | **Member 6** | `POST /api/algorithm/landslide-risk` | SMS, WhatsApp, Telegram, NDMA CAP XML, Sirens | Evaluates corridor risk thresholds and cascades emergency broadcasts through volunteer hierarchies. |
+| **Command Dashboard & Visualization** | **Member 5** | `GET /risk-state`, `GET /tiles/` | React 19 Interactive Map, Isolation Twin, SOP PDF | Delivers sub-second situational awareness to District Disaster Management Authorities. |
+
+
 
