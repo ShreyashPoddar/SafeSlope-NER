@@ -1,0 +1,113 @@
+services:
+
+  # ─────────────────────────────────────────────
+  # FASTAPI APPLICATION
+  # ─────────────────────────────────────────────
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://resiliner_user:resiliner_pass@db:5432/resiliner}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SERVICE_API_KEY: ${SERVICE_API_KEY:-change-this-shared-key}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your-google-client-id.apps.googleusercontent.com}
+      JWT_SECRET: ${JWT_SECRET:-change-this-jwt-secret-too}
+      GATEWAY_HMAC_SECRET: ${GATEWAY_HMAC_SECRET:-change-this-gateway-hmac-secret}
+      RUNTIME_PROFILE: ${RUNTIME_PROFILE:-laptop-workstation-cpu}
+      HARDWARE_BRIDGE_URL: ${HARDWARE_BRIDGE_URL:-https://unknown-remold-lavish.ngrok-free.dev}
+      HARDWARE_BRIDGE_ENABLED: ${HARDWARE_BRIDGE_ENABLED:-true}
+      HARDWARE_POLL_INTERVAL_SECONDS: ${HARDWARE_POLL_INTERVAL_SECONDS:-5.0}
+      OLLAMA_BASE_URL: http://ollama:11434
+      VLLM_BASE_URL: ${VLLM_BASE_URL:-http://vllm:8001}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME:-llama3.2:3b}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+      - ./models:/app/models
+      - ./resources:/app/resources
+
+  # ─────────────────────────────────────────────
+  # TIMESCALEDB + POSTGIS + PGVECTOR DATABASE
+  # Replaces plain postgis/postgis:16-3.4
+  # timescale/timescaledb-ha bundles PostGIS 3.4,
+  # TimescaleDB 2.x, and pgvector in one image.
+  # ─────────────────────────────────────────────
+  db:
+    image: timescale/timescaledb-ha:pg16
+    environment:
+      POSTGRES_USER: resiliner_user
+      POSTGRES_PASSWORD: resiliner_pass
+      POSTGRES_DB: resiliner
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/home/postgres/pgdata/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resiliner_user -d resiliner"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  # ─────────────────────────────────────────────
+  # REDIS — Feature Store + Rate Limiting
+  # Used as stream broker on laptop profile.
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 2gb --maxmemory-policy allkeys-lru
+
+  # ─────────────────────────────────────────────
+  # OLLAMA — Local LLM Server (Laptop Profile)
+  # Serves: llama3.2:3b (4-bit, ~4.8 GB VRAM)
+  # Pull model after first boot:
+  #   docker compose exec ollama ollama pull llama3.2:3b
+  # ─────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles: [laptop, gpu]
+
+  # ─────────────────────────────────────────────
+  # REDPANDA — High-Throughput Kafka-Compatible
+  # Stream Broker (Cloud / GPU Profile Only)
+  # Handles 1,000+ sensor packets/sec during storms.
+  # ─────────────────────────────────────────────
+  redpanda:
+    image: redpandadata/redpanda:latest
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp 2
+      - --memory 1G
+      - --reserve-memory 0M
+      - --node-id 0
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+    profiles: [gpu]
+
+volumes:
+  pgdata:
+  ollama_models:

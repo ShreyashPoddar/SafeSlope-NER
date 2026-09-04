@@ -30,30 +30,20 @@ data/processed/
 *.ckpt
 *.h5
 
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# IDEs & OS
+# IDEs
 .vscode/
-!.vscode/extensions.json
 .idea/
-.DS_Store
-Thumbs.db
 *.swp
 *.swo
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# dotenv
+.env.local
+.env.*.local
