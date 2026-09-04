@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import type { IoTNode, CitizenIncident } from '../types/dashboard';
-import { MoreHorizontal, MapPin, Layers, Plus, Minus, X } from 'lucide-react';
+import type { IoTNode, CitizenIncident, RiskPolygon } from '../types/dashboard';
+import { MoreHorizontal, MapPin, Layers, Plus, Minus, X, Eye, ShieldAlert } from 'lucide-react';
 
 // Custom Glowing Emerald Leaflet Icon
 const createCustomIcon = (color: string, isPulse: boolean = false) => {
@@ -38,23 +38,60 @@ const MapController: React.FC<{ focusCoords: [number, number] | null }> = ({ foc
 interface MapViewProps {
   iotNodes: IoTNode[];
   citizenIncidents: CitizenIncident[];
+  riskPolygons?: RiskPolygon[];
   focusCoords: [number, number] | null;
 }
 
 export const MapView: React.FC<MapViewProps> = ({
   iotNodes,
   citizenIncidents,
+  riskPolygons = [],
   focusCoords
 }) => {
   const defaultCenter: [number, number] = [23.7271, 92.7176]; // North Eastern India (NER) Aizawl Hill Slope Sector
+  const [showRiskPolygons, setShowRiskPolygons] = useState<boolean>(true);
+  const [hoveredPolygonId, setHoveredPolygonId] = useState<string | null>(null);
+
+  // Dynamic Polygon Styling based on Severity & Hover State
+  const getPolygonStyle = (poly: RiskPolygon, isHovered: boolean) => {
+    let fillColor = '#eab308';
+    let color = '#ca8a04';
+    let weight = 1.5;
+    let baseOpacity = 0.20;
+
+    if (poly.severity === 'LEVEL 3') {
+      fillColor = '#ef4444';
+      color = '#dc2626';
+      weight = 2;
+      baseOpacity = 0.30;
+    } else if (poly.severity === 'LEVEL 2') {
+      fillColor = '#f97316';
+      color = '#ea580c';
+      weight = 2;
+      baseOpacity = 0.25;
+    }
+
+    return {
+      fillColor,
+      color,
+      weight: isHovered ? weight + 1 : weight,
+      fillOpacity: isHovered ? 0.50 : baseOpacity, // 50% opacity on hover
+      dashArray: isHovered ? '4, 4' : undefined
+    };
+  };
 
   return (
     <div className="glass-panel-emerald-glow rounded-3xl p-4 flex flex-col h-[390px] justify-between relative overflow-hidden">
       
       {/* GIS Map Card Header */}
       <div className="flex items-center justify-between mb-2 px-1">
-        <h2 className="text-base font-bold text-slate-800 tracking-tight">
-          GIS Map (North Eastern Region)
+        <h2 className="text-base font-bold text-slate-800 tracking-tight flex items-center gap-2">
+          <span>GIS Map (North Eastern Region)</span>
+          {riskPolygons.length > 0 && (
+            <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+              {riskPolygons.length} Active Risk Polygons
+            </span>
+          )}
         </h2>
         <button className="text-slate-400 hover:text-slate-600 transition-colors p-1">
           <MoreHorizontal className="w-5 h-5" />
@@ -80,18 +117,31 @@ export const MapView: React.FC<MapViewProps> = ({
             </div>
             <div className="flex items-center gap-2 text-slate-700">
               <div className="w-3 h-3 rounded bg-gradient-to-r from-amber-400 via-orange-500 to-rose-600 shrink-0" />
-              <span className="text-[10px]">Landslide Heatmap</span>
+              <span className="text-[10px]">Geotech Risk Polygons</span>
             </div>
           </div>
         </div>
 
-        {/* Floating Top-Right Search Tag Pill */}
-        <div className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 bg-[#10b981]/90 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-md">
-          <MapPin className="w-3 h-3 fill-white text-[#10b981]" />
-          <span>Active IoT Stations</span>
-          <button className="hover:bg-emerald-700/50 p-0.5 rounded-full ml-0.5">
-            <X className="w-3 h-3" />
-          </button>
+        {/* Floating Top-Right Layer Toggle Widget: [x] Show Geotech Risk Polygons */}
+        <div className="absolute top-3 right-3 z-[1000] flex items-center gap-2">
+          <label className="flex items-center gap-2 bg-white/95 backdrop-blur-md text-slate-800 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md border border-slate-200 cursor-pointer hover:bg-white transition-all select-none">
+            <input 
+              type="checkbox"
+              checked={showRiskPolygons}
+              onChange={(e) => setShowRiskPolygons(e.target.checked)}
+              className="accent-[#10b981] w-3.5 h-3.5 rounded cursor-pointer"
+            />
+            <Eye className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Show Geotech Risk Polygons</span>
+          </label>
+
+          <div className="hidden sm:flex items-center gap-1.5 bg-[#10b981]/90 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-full shadow-md">
+            <MapPin className="w-3 h-3 fill-white text-[#10b981]" />
+            <span>Active IoT Stations</span>
+            <button className="hover:bg-emerald-700/50 p-0.5 rounded-full ml-0.5">
+              <X className="w-3 h-3" />
+            </button>
+          </div>
         </div>
 
         {/* Leaflet Light Relief Map */}
@@ -130,6 +180,77 @@ export const MapView: React.FC<MapViewProps> = ({
               stroke: false
             }}
           />
+
+          {/* Dynamic Geotech Officer Risk Polygons (Layer Toggleable) */}
+          {showRiskPolygons && riskPolygons.map((poly) => {
+            const isHovered = hoveredPolygonId === poly.id;
+            const style = getPolygonStyle(poly, isHovered);
+
+            return (
+              <Polygon
+                key={poly.id}
+                positions={poly.coords}
+                pathOptions={style}
+                eventHandlers={{
+                  mouseover: () => setHoveredPolygonId(poly.id),
+                  mouseout: () => setHoveredPolygonId(null)
+                }}
+              >
+                {/* Interactive Glassmorphic Metadata Popup */}
+                <Popup className="glass-popup">
+                  <div className="p-2.5 font-sans space-y-2 max-w-[240px] text-slate-900">
+                    <div className="flex items-start justify-between gap-1 border-b border-slate-200 pb-1.5">
+                      <h4 className="font-extrabold text-xs text-slate-900 leading-tight">
+                        {poly.name}
+                      </h4>
+                    </div>
+
+                    {/* Hazard Severity Badge */}
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-semibold text-slate-500">Hazard Severity:</span>
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-black text-white uppercase tracking-wider flex items-center gap-1 ${
+                        poly.severity === 'LEVEL 3' 
+                          ? 'bg-rose-600 shadow-sm shadow-rose-500/30' 
+                          : poly.severity === 'LEVEL 2' 
+                          ? 'bg-orange-500 shadow-sm shadow-orange-500/30' 
+                          : 'bg-amber-500 shadow-sm shadow-amber-500/30'
+                      }`}>
+                        <ShieldAlert className="w-3 h-3" />
+                        {poly.severity === 'LEVEL 3' ? 'Critical Red Alert' : poly.severity === 'LEVEL 2' ? 'High Risk / Evacuate' : 'Alert / Moderate'}
+                      </span>
+                    </div>
+
+                    {/* Geotechnical Instability Score */}
+                    <div className="space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                      <div className="flex justify-between text-[11px] font-semibold text-slate-700">
+                        <span>Geotechnical Instability:</span>
+                        <strong className={poly.instabilityScore > 75 ? 'text-rose-600' : 'text-amber-600'}>
+                          {poly.instabilityScore}%
+                        </strong>
+                      </div>
+                      <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${poly.instabilityScore > 75 ? 'bg-rose-600' : poly.instabilityScore > 50 ? 'bg-orange-500' : 'bg-amber-500'}`}
+                          style={{ width: `${poly.instabilityScore}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Primary Trigger */}
+                    <div className="text-[11px] text-slate-700 font-medium">
+                      Primary Trigger: <strong className="text-slate-900">{poly.primaryTrigger}</strong>
+                    </div>
+
+                    {/* Last Updated & Author Metadata */}
+                    <div className="text-[9px] font-mono text-slate-500 border-t border-slate-200 pt-1.5 flex justify-between items-center">
+                      <span>{poly.authorInfo || 'Geotech Officer #104'}</span>
+                      <span>{poly.lastUpdated || 'Live Sync'}</span>
+                    </div>
+                  </div>
+                </Popup>
+              </Polygon>
+            );
+          })}
 
           {/* Deployed Active IoT Station Markers */}
           {iotNodes.map((node) => (
