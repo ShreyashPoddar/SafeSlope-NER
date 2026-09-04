@@ -48,11 +48,18 @@ CREATE TABLE isolation_events (
 
 CREATE TABLE reports (
     id SERIAL PRIMARY KEY,
+    tracking_id TEXT,
+    sender_phone TEXT,
+    hazard_type TEXT,
     location GEOMETRY(Point, 4326),
     classification TEXT,
     confidence_pct FLOAT,
     image_url TEXT,
+    review_status TEXT DEFAULT 'PENDING_REVIEW',
     verified BOOLEAN DEFAULT FALSE,
+    reviewed_by TEXT,
+    reviewed_at TIMESTAMP,
+    deoc_notes TEXT,
     submitted_at TIMESTAMP DEFAULT now()
 );
 

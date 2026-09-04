@@ -1,9 +1,10 @@
 import json
 from fastapi import APIRouter, Depends
-from app.models.schemas import RulesResult, MLResult, RiskZonePayload
+from app.models.schemas import RulesResult, MLResult, RiskZonePayload, LandslideAlgorithmPayload
 from app.database import database
 from app.redis_client import redis_client
 from app.services.risk_engine import resolve_risk
+from app.services.threshold_engine import evaluate_landslide_algorithm_prediction
 from app.auth import verify_api_key, get_current_user
 
 router = APIRouter(tags=["risk"])
@@ -52,6 +53,55 @@ async def receive_ml_result(result: MLResult):
     return {"status": "ok"}
 
 
+@router.post("/api/algorithm/landslide-risk")
+@router.post("/algorithm/landslide-risk")
+async def receive_algorithm_landslide_prediction(payload: LandslideAlgorithmPayload):
+    """
+    Standard ingestion endpoint for the upcoming main git landslide risk prediction algorithm.
+    Evaluates the prediction against dynamic thresholds (Advisory, Warning, Critical),
+    dynamically calculates geotechnical Factor of Safety and spatial isolation metrics,
+    and automatically triggers the area emergency broadcast cascade upon breach.
+    """
+    features = {}
+    # Merge nested trigger features if supplied
+    if payload.trigger_features:
+        features.update(payload.trigger_features)
+
+    if payload.rainfall_mm_24h is not None:
+        features["rainfall_mm_24h"] = payload.rainfall_mm_24h
+    if payload.soil_moisture_pct is not None:
+        features["soil_moisture_pct"] = payload.soil_moisture_pct
+    if payload.slope_tilt_deg is not None:
+        features["slope_tilt_deg"] = payload.slope_tilt_deg
+    if payload.pore_pressure_kpa is not None:
+        features["pore_pressure_kpa"] = payload.pore_pressure_kpa
+
+    # Resolve risk probability (accepts 0-1 probability or 0-100 percentage)
+    raw_prob = payload.risk_pct if payload.risk_pct is not None else payload.predicted_probability
+    if raw_prob is None:
+        raw_prob = 75.0  # Safe default if pure features are sent
+
+    # Resolve confidence (accepts 0-1 or 0-100)
+    raw_conf = payload.confidence if payload.confidence is not None else payload.confidence_pct
+    if raw_conf is not None and raw_conf <= 1.0:
+        raw_conf *= 100.0
+
+    eval_result = await evaluate_landslide_algorithm_prediction(
+        zone_id=payload.zone_id or 1,
+        zone_name=payload.corridor_id or payload.zone_name,
+        risk_pct=raw_prob,
+        confidence_pct=raw_conf if raw_conf is not None else 85.0,
+        model_version=payload.source_model or payload.model_version or "xgboost-landslide-v2",
+        features=features,
+        force_notify=payload.force_notify or False,
+        lat=payload.latitude,
+        lng=payload.longitude,
+    )
+    return eval_result
+
+
+
+
 async def _update_zone(
     zone_id: int,
     physics_risk: str | None = None,
@@ -86,6 +136,19 @@ async def _update_zone(
     )
 
     await _refresh_cache()
+
+    # --- Member 6 Cross-Team Touchpoint: Automated Comms Trigger ---
+    if final_risk in ["HIGH", "CRITICAL"]:
+        try:
+            from app.comms.dispatcher import alert_dispatcher
+            await alert_dispatcher.evaluate_risk_trigger(
+                zone_id=zone_id,
+                zone_name=row["zone_name"],
+                risk_level=final_risk,
+                source=source,
+            )
+        except Exception:
+            pass
 
 
 async def _refresh_cache():

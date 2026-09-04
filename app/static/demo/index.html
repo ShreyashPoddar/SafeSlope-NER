@@ -1,0 +1,3708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeSlope-NER | Member 6 Comms & Bot Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Leaflet GIS Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --card-bg: #121826;
+      --card-border: #1e293b;
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.2);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --critical: #dc2626;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --wa-header: #075e54;
+      --wa-bg: #0b141a;
+      --wa-bubble-in: #202c33;
+      --wa-bubble-out: #005c4b;
+      --wa-accent: #25d366;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: rgba(18, 24, 38, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .brand-badge {
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--primary);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .status-pill {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+    .dot.pulse {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .btn-demo {
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-demo:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Main Container */
+    .dashboard-container {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* 3-Column Top Grid */
+    .top-grid {
+      display: grid;
+      grid-template-columns: 420px 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1280px) {
+      .top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Panels */
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      background: rgba(30, 41, 59, 0.5);
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Column 1: Smartphone Simulator */
+    .phone-wrapper {
+      background: #000;
+      border: 8px solid #222a38;
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      height: 720px;
+    }
+
+    .phone-notch {
+      background: #000;
+      height: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .phone-wa-header {
+      background: var(--wa-header);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wa-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #128c7e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .wa-info h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .wa-info p {
+      font-size: 11px;
+      color: #bbf7d0;
+    }
+
+    .phone-chat-body {
+      background-color: var(--wa-bg);
+      background-image: radial-gradient(#1e293b 1px, transparent 1px);
+      background-size: 16px 16px;
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-bubble {
+      max-width: 82%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      position: relative;
+      word-break: break-word;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-bubble.bot {
+      background: var(--wa-bubble-in);
+      color: #e9edef;
+      align-self: flex-start;
+      border-top-left-radius: 2px;
+    }
+
+    .chat-bubble.user {
+      background: var(--wa-bubble-out);
+      color: #e9edef;
+      align-self: flex-end;
+      border-top-right-radius: 2px;
+    }
+
+    .bubble-meta {
+      font-size: 10px;
+      color: #8696a0;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .chat-media-preview {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* Phone Interactive Bottom Action Bar */
+    .phone-action-bar {
+      background: #202c33;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-top: 1px solid #2a3942;
+    }
+
+    .quick-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .quick-chip {
+      background: #2a3942;
+      border: 1px solid #3b4a54;
+      color: #d1d7db;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 14px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-chip:hover {
+      background: #005c4b;
+      color: #fff;
+    }
+
+    .simulator-inputs {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .sim-input {
+      flex: 1;
+      background: #2a3942;
+      border: 1px solid #37474f;
+      border-radius: 20px;
+      padding: 8px 14px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .btn-icon {
+      background: #00a884;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .btn-icon:hover {
+      transform: scale(1.06);
+    }
+
+    .photo-helper-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .select-sample {
+      background: #111b21;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 3px 6px;
+      font-size: 11px;
+    }
+
+    /* Column 2: Computer Vision Live Tagging Inspector */
+    .cv-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .cv-photo-container {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      background: #0f172a;
+      border-radius: 12px;
+      border: 1px dashed #334155;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cv-photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cv-overlay-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cv-scanline {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+      box-shadow: 0 0 10px #38bdf8;
+      animation: scan 3s infinite linear;
+    }
+
+    @keyframes scan {
+      0% { top: 0; opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { top: 100%; opacity: 0.2; }
+    }
+
+    .cv-results-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cv-top-result {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tag-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .tag-sev {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .sev-CRITICAL { background: rgba(220, 38, 38, 0.2); color: #f87171; border: 1px solid #dc2626; }
+    .sev-HIGH { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid #f97316; }
+    .sev-MODERATE { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .sev-LOW { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+
+    .confidence-meter {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .meter-bar-bg {
+      height: 8px;
+      background: #0f172a;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .meter-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #10b981);
+      width: 0%;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .feature-box {
+      background: #0f172a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+    }
+    .feature-box span {
+      color: var(--text-muted);
+      display: block;
+    }
+    .feature-box strong {
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .hitl-alert {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 3px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #cbd5e1;
+    }
+
+    /* Column 3: DEOC Verification Queue (Member 5 Feed) */
+    .queue-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 650px;
+      overflow-y: auto;
+    }
+
+    .queue-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .q-stat {
+      background: #1e293b;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .q-stat-val {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .q-stat-lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .report-card {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .report-card:hover {
+      border-color: #38bdf8;
+    }
+
+    .rep-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rep-tracking {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #38bdf8;
+    }
+
+    .rep-status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .status-PENDING_REVIEW { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .status-VERIFIED_APPROVED { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .status-REJECTED { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .rep-content {
+      display: flex;
+      gap: 12px;
+    }
+
+    .rep-thumb {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #0f172a;
+    }
+
+    .rep-details {
+      flex: 1;
+      font-size: 12px;
+    }
+
+    .rep-tag {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .rep-loc {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .rep-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-approve {
+      flex: 1;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #10b981;
+      color: #34d399;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-approve:hover {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .btn-reject {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #f87171;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-reject:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    /* Live Incident Toast Banner */
+    .incident-banner {
+      position: fixed;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-140%);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98));
+      border: 1.5px solid #38bdf8;
+      box-shadow: 0 16px 40px rgba(56, 189, 248, 0.4);
+      backdrop-filter: blur(16px);
+      padding: 12px 22px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 9999;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s;
+      opacity: 0;
+      pointer-events: none;
+      max-width: 680px;
+      width: 90%;
+    }
+    .incident-banner.active {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+    .incident-banner-icon {
+      font-size: 26px;
+      animation: pulse 1s infinite;
+      flex-shrink: 0;
+    }
+    .incident-banner-text {
+      flex: 1;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #f1f5f9;
+    }
+    .incident-banner-text strong {
+      color: #38bdf8;
+    }
+    .btn-banner-assess {
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .btn-banner-assess:hover {
+      background: #7dd3fc;
+      transform: scale(1.04);
+    }
+    .btn-banner-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* Queue Filter Tabs & Search Bar */
+    .queue-filter-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .queue-tabs {
+      display: flex;
+      gap: 4px;
+      background: #0f172a;
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+    }
+    .queue-tab {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .queue-tab:hover {
+      color: #fff;
+    }
+    .queue-tab.active {
+      background: #1e293b;
+      color: #38bdf8;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .queue-search-input {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      color: #fff;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .queue-search-input:focus {
+      border-color: #38bdf8;
+    }
+
+    /* Enhanced Report Card */
+    .rep-thumb-wrap {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid #334155;
+      cursor: pointer;
+      background: #020617;
+    }
+    .rep-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.25s;
+    }
+    .rep-thumb-wrap:hover .rep-thumb {
+      transform: scale(1.1);
+    }
+    .rep-thumb-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.75);
+      color: #38bdf8;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    .channel-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      letter-spacing: 0.03em;
+    }
+    .channel-tg {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .channel-wa {
+      background: rgba(37, 211, 102, 0.15);
+      color: #25d366;
+      border: 1px solid rgba(37, 211, 102, 0.35);
+    }
+    .btn-assess {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-assess:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    /* Detailed Assessment Dossier Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .assessment-modal {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 1180px;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+      animation: modalSlide 0.25s ease-out;
+    }
+    .assessment-modal-header {
+      padding: 16px 24px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .assessment-modal-body {
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 24px;
+      overflow-y: auto;
+    }
+    @media (max-width: 980px) {
+      .assessment-modal-body {
+        grid-template-columns: 1fr;
+      }
+    }
+    .modal-img-container {
+      position: relative;
+      width: 100%;
+      height: 330px;
+      background: #020617;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-main-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      cursor: zoom-in;
+    }
+    .modal-img-hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .modal-img-tools {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+    }
+    .img-tool-btn {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(6px);
+      border: 1px solid #475569;
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .img-tool-btn:hover {
+      background: #38bdf8;
+      color: #0f172a;
+    }
+
+    .dossier-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .dossier-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .dossier-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .dossier-lbl {
+      color: #94a3b8;
+    }
+    .dossier-val {
+      color: #fff;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .action-choice-group {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-choice {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #475569;
+      background: #1e293b;
+      color: #cbd5e1;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .btn-choice.active-approve {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      color: #34d399;
+    }
+    .btn-choice.active-reject {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #f87171;
+    }
+    .btn-choice.active-escalate {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: #f59e0b;
+      color: #fbbf24;
+    }
+
+    /* Lightbox Modal */
+    .lightbox-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.94);
+      backdrop-filter: blur(14px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .lightbox-modal.open {
+      display: flex;
+    }
+    .lightbox-img {
+      max-width: 95vw;
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Geospatial GIS Live Feed Panel */
+    .gis-panel {
+      margin-top: 24px;
+      margin-bottom: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .gis-header {
+      padding: 14px 20px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .gis-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-gis-tool {
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+    .btn-gis-tool:hover {
+      background: #1e293b;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .gis-filter-bar {
+      padding: 10px 20px;
+      background: #0b1322;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .gis-chips {
+      display: flex;
+      gap: 6px;
+    }
+    .gis-chip {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .gis-chip:hover, .gis-chip.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+    #gisMap {
+      width: 100%;
+      height: 440px;
+      background: #020617;
+      z-index: 10;
+    }
+    /* Custom Radar Hazard Pins */
+    .radar-marker {
+      position: relative;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .radar-core {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 10px currentColor;
+      z-index: 2;
+    }
+    .radar-ring {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      opacity: 0.8;
+      animation: radarPulse 1.8s infinite cubic-bezier(0.2, 0, 0.4, 1);
+      z-index: 1;
+    }
+    @keyframes radarPulse {
+      0% { transform: scale(0.3); opacity: 1; }
+      100% { transform: scale(2.0); opacity: 0; }
+    }
+    /* Custom Leaflet Dark Popup */
+    .leaflet-popup-content-wrapper {
+      background: #0f172a !important;
+      color: #f1f5f9 !important;
+      border: 1.5px solid #38bdf8 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8) !important;
+      padding: 0 !important;
+    }
+    .leaflet-popup-content {
+      margin: 12px !important;
+      line-height: 1.4 !important;
+    }
+    .leaflet-popup-tip {
+      background: #0f172a !important;
+      border: 1px solid #38bdf8 !important;
+    }
+    .map-popup-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 220px;
+      max-width: 280px;
+    }
+    .map-popup-thumb {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #020617;
+      cursor: pointer;
+    }
+    .map-popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+
+
+    /* Bottom Row: CAP Alerting & Risk Trigger */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .bottom-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cap-xml-box {
+      background: #070b13;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #a5f3fc;
+      max-height: 280px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .trigger-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-group select, .form-group input {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    .btn-spike {
+      background: linear-gradient(135deg, #dc2626, #f97316);
+      color: #fff;
+      font-weight: 700;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-spike:hover {
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+      transform: translateY(-1px);
+    }
+
+    /* Outbox Feed */
+    .outbox-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 14px;
+    }
+    .outbox-item {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12px;
+    }
+    .outbox-head {
+      display: flex;
+      justify-content: space-between;
+      color: #38bdf8;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* Notification Settings & Algorithm Threshold Engine */
+    .settings-toggle-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid #334155;
+      color: #94a3b8;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .settings-toggle-btn:hover {
+      background: #334155;
+      color: #fff;
+      border-color: #475569;
+    }
+    .notif-settings-box {
+      background: #090e17;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .notif-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+    .notif-tab {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .notif-tab.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+    }
+    .notif-tab-content {
+      display: none;
+    }
+    .notif-tab-content.active {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .channel-chips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 6px;
+    }
+    .channel-chip-btn {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      color: #94a3b8;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .channel-chip-btn.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: #10b981;
+      color: #34d399;
+    }
+    .thresh-slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .thresh-slider-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .thresh-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #f87171;
+    }
+    .btn-algo-sim {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-algo-sim:hover {
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+      transform: translateY(-1px);
+    }
+    /* Dispatch Dossier Modal */
+    .dispatch-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .dispatch-modal {
+      background: #090e17;
+      border: 1px solid #dc2626;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(220, 38, 38, 0.35);
+      display: flex;
+      flex-direction: column;
+      animation: modalFadeIn 0.25s ease-out;
+    }
+    .dispatch-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(220, 38, 38, 0.1);
+    }
+    .dispatch-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 16px 20px;
+      border-bottom: 1px solid #1e293b;
+      background: #0c121e;
+    }
+    @media (max-width: 640px) {
+      .dispatch-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .dispatch-stat-box {
+      background: #131c2e;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    .dispatch-stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .dispatch-stat-lbl {
+      font-size: 10px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+  </style>
+
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🏔️</div>
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="brand-title">ResiliNER / SafeSlope-NER</span>
+          <span class="brand-badge">Member 6</span>
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted);">Communications & Bot Developer Console | Human-Interaction Loop</p>
+      </div>
+    </div>
+
+    <div class="header-badges">
+      <div class="status-pill" id="liveStreamPill">
+        <span class="dot pulse" id="liveDot" style="background: #10b981;"></span>
+        <span id="liveStreamText">Live Feed: <strong>SSE Connected</strong></span>
+      </div>
+      <button class="btn-demo" style="background: linear-gradient(135deg, #0284c7, #38bdf8);" onclick="openTelegramModal()">
+        <span>🤖 Telegram Bot: @safeslope_ner_bot</span>
+      </button>
+      <button id="btnSoundToggle" class="btn-demo" style="background: #1e293b; border: 1px solid #334155;" onclick="toggleSound()">
+        <span id="soundLabel">🔔 Audio Chime: ON</span>
+      </button>
+      <button class="btn-demo" style="background: linear-gradient(135deg, #059669, #10b981);" onclick="openRealPhoneModal()">
+        <span>📲 Real Phone (FREE QR)</span>
+      </button>
+      <button class="btn-demo" onclick="runJudgeDemoFlow()">
+        <span>⚡ Run Day 4 Live Demo</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Live Incident Toast Banner -->
+  <div id="liveIncidentBanner" class="incident-banner">
+    <div class="incident-banner-icon">🚨</div>
+    <div class="incident-banner-text">
+      <strong>NEW TELEGRAM FIELD REPORT!</strong><br>
+      <span id="bannerDetails">SLOPE-2609-XXXX reported by @citizen • Surface Rockfall</span>
+    </div>
+    <button class="btn-banner-assess" onclick="assessLatestFromBanner()">🔍 View & Assess</button>
+    <button class="btn-banner-close" onclick="closeIncidentBanner()">✕</button>
+  </div>
+
+  <!-- Real-Time Detailed Assessment Dossier Modal -->
+  <div id="reportModal" class="modal-overlay">
+    <div class="assessment-modal">
+      <div class="assessment-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <h2 style="font-size: 17px; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+            🛡️ Citizen Field Incident Dossier
+          </h2>
+          <span id="modalTrackingBadge" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 3px 8px; border-radius: 6px;">SLOPE-2609-0000</span>
+          <span id="modalChannelBadge" class="channel-pill channel-tg">🤖 Telegram Bot</span>
+        </div>
+        <button onclick="closeReportModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 4px 8px;">✕</button>
+      </div>
+
+      <div class="assessment-modal-body">
+        <!-- LEFT: Actual Image & CV Diagnostics -->
+        <div class="modal-image-panel">
+          <div class="modal-img-container">
+            <div class="modal-img-hud" id="modalImgTag">Surface Rockfall (90.1%)</div>
+            <img id="modalImg" src="/api/comms/samples/rockfall" alt="Actual Field Photo" class="modal-main-img" onclick="openLightboxFromModal()" />
+            <div class="modal-img-tools">
+              <button class="img-tool-btn" onclick="zoomImage(1.2)" title="Zoom In">➕</button>
+              <button class="img-tool-btn" onclick="zoomImage(0.8)" title="Zoom Out">➖</button>
+              <button class="img-tool-btn" onclick="resetZoom()" title="Reset Zoom">↺</button>
+              <button class="img-tool-btn" onclick="openLightboxFromModal()" title="Fullscreen Lightbox">⛶ Fullscreen</button>
+            </div>
+          </div>
+
+          <div class="dossier-card">
+            <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;">
+              🔬 AI Computer Vision Analysis (MobileNetV3 Edge)
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13px; font-weight: 600; color: #fff;" id="modalCvTag">Surface Rockfall</span>
+              <span id="modalCvSev" class="tag-sev sev-CRITICAL">CRITICAL</span>
+            </div>
+
+            <div class="confidence-meter">
+              <div class="meter-label">
+                <span>Confidence Calibration</span>
+                <strong id="modalCvConf">90.1%</strong>
+              </div>
+              <div class="meter-bar-bg">
+                <div class="meter-bar-fill" id="modalCvBar" style="width: 90.1%;"></div>
+              </div>
+            </div>
+
+            <div class="features-grid">
+              <div class="feature-box">
+                <span>Laplacian Texture (Rock)</span>
+                <strong id="modalLaplacian">487.9</strong>
+              </div>
+              <div class="feature-box">
+                <span>Edge / Crack Density</span>
+                <strong id="modalEdge">0.023</strong>
+              </div>
+              <div class="feature-box">
+                <span>Mud / Soil Chromatic</span>
+                <strong id="modalMud">0.595</strong>
+              </div>
+              <div class="feature-box">
+                <span>Inference Latency</span>
+                <strong id="modalLatency">11.6 ms</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Detailed Submitter Dossier & DEOC Assessment Controls -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Submitter & Location Dossier -->
+          <div class="dossier-card">
+            <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">
+              👤 Submitter & Geospatial Telemetry
+            </div>
+
+            <div class="dossier-row">
+              <span class="dossier-lbl">Citizen / Submitter:</span>
+              <span class="dossier-val" id="modalSenderName">Lalthan Mawia (@lalthan_m)</span>
+            </div>
+            <div class="dossier-row">
+              <span class="dossier-lbl">Channel & Origin:</span>
+              <span class="dossier-val" id="modalChannelDetail">Telegram Bot (@safeslope_ner_bot)</span>
+            </div>
+            <div class="dossier-row">
+              <span class="dossier-lbl">Telegram Chat ID:</span>
+              <span class="dossier-val" style="font-family: monospace;" id="modalChatId">987654321</span>
+            </div>
+            <div class="dossier-row">
+              <span class="dossier-lbl">Submitted At:</span>
+              <span class="dossier-val" id="modalSubmittedAt">2026-09-04 01:15:00 UTC</span>
+            </div>
+            <div class="dossier-row">
+              <span class="dossier-lbl">GPS Geotag:</span>
+              <span class="dossier-val" style="color: #38bdf8; font-family: monospace;" id="modalCoords">23.3150° N, 92.8540° E</span>
+            </div>
+            <div class="dossier-row">
+              <span class="dossier-lbl">Landmark / Corridor:</span>
+              <span class="dossier-val" id="modalLocStr">NH-54 km 42 near Chhiahtlang</span>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <a id="modalMapLink" href="#" target="_blank" class="btn-demo" style="flex: 1; padding: 6px 10px; font-size: 11px; text-decoration: none; justify-content: center; background: #1e293b; border: 1px solid #334155;">
+                🗺️ Open in Google Maps
+              </a>
+              <a id="modalOsmLink" href="#" target="_blank" class="btn-demo" style="flex: 1; padding: 6px 10px; font-size: 11px; text-decoration: none; justify-content: center; background: #1e293b; border: 1px solid #334155;">
+                🌐 Open in OpenStreetMap
+              </a>
+            </div>
+          </div>
+
+          <!-- Citizen Reported Notes / Narrative -->
+          <div class="dossier-card">
+            <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">
+              💬 Citizen's Reported Narrative / Caption
+            </div>
+            <p id="modalCitizenNotes" style="font-size: 13px; color: #f1f5f9; background: #0f172a; padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; line-height: 1.5; font-style: italic;">
+              "Massive boulders collapsed onto northbound lane after heavy rainfall"
+            </p>
+          </div>
+
+          <!-- DEOC Officer Assessment & Triage Toolkit -->
+          <div class="dossier-card" style="border-color: #38bdf8;">
+            <div style="font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; align-items: center;">
+              <span>🛡️ DEOC Duty Officer Assessment & Dispatch Console</span>
+              <span id="modalCurrentStatus" class="rep-status-badge status-PENDING_REVIEW">PENDING REVIEW</span>
+            </div>
+
+            <!-- Triage Decision Buttons -->
+            <div>
+              <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px;">Assessment Decision:</label>
+              <div class="action-choice-group">
+                <button type="button" class="btn-choice active-approve" id="btnChoiceApprove" onclick="selectActionChoice('APPROVE')">
+                  ✓ Approve (Verify GIS)
+                </button>
+                <button type="button" class="btn-choice" id="btnChoiceReject" onclick="selectActionChoice('REJECT')">
+                  ✕ Reject Report
+                </button>
+              </div>
+            </div>
+
+            <!-- Severity Override -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div>
+                <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px;">Assessed Severity:</label>
+                <select id="modalAssessSeverity" style="width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 7px 10px; color: #fff; font-size: 12px;">
+                  <option value="CRITICAL">🔴 CRITICAL</option>
+                  <option value="HIGH">🟠 HIGH</option>
+                  <option value="MODERATE">🟡 MODERATE</option>
+                  <option value="LOW">🟢 LOW</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px;">Assign Response Unit:</label>
+                <select id="modalAssessUnit" style="width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 7px 10px; color: #fff; font-size: 12px;">
+                  <option value="Serchhip PWD Clearance Squad #3">Serchhip PWD Clearance Squad #3</option>
+                  <option value="Aizawl NDRF 1st Bn Rapid Team">Aizawl NDRF 1st Bn Rapid Team</option>
+                  <option value="Border Roads Org (BRO) Taskforce 753">Border Roads Org (BRO) Taskforce 753</option>
+                  <option value="Champhai DDMA Quick Reaction Team">Champhai DDMA Quick Reaction Team</option>
+                  <option value="State Disaster Response Force (SDRF) Alpha">State Disaster Response Force (SDRF) Alpha</option>
+                  <option value="Unassigned / Telemetry Observation Only">Unassigned / Telemetry Observation Only</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Officer Notes -->
+            <div>
+              <label style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px;">Official Assessment Remarks & Instructions:</label>
+              <textarea id="modalAssessNotes" rows="2" style="width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; resize: vertical;" placeholder="Enter verification grounds or field engineering dispatch notes..."></textarea>
+            </div>
+
+            <!-- Notify Telegram Citizen Checkbox -->
+            <div style="display: flex; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.08); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.2);">
+              <input type="checkbox" id="modalNotifyCitizen" checked style="accent-color: #38bdf8; width: 16px; height: 16px;" />
+              <label for="modalNotifyCitizen" style="font-size: 12px; color: #e2e8f0; cursor: pointer;">
+                ⚡ <strong>Instant Telegram Feedback:</strong> Transmit assessment decision & response team notice back to citizen's chat
+              </label>
+            </div>
+
+            <!-- Action Submit Buttons -->
+            <div style="display: flex; gap: 10px; margin-top: 4px;">
+              <button type="button" class="btn-demo" style="flex: 2; justify-content: center; background: linear-gradient(135deg, #059669, #10b981);" onclick="submitReportAssessment()">
+                💾 Transmit Assessment & Update GIS
+              </button>
+              <button type="button" class="btn-demo" style="flex: 1; justify-content: center; background: #334155;" onclick="exportIncidentDossier()">
+                🖨️ Export Dossier
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Lightbox Modal -->
+  <div id="lightboxModal" class="lightbox-modal" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" class="lightbox-img" alt="Fullscreen Image" />
+  </div>
+
+  <!-- Telegram Bot Connect & QR Modal -->
+  <div id="telegramModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+    <div style="background: #121826; border: 1.5px solid #38bdf8; border-radius: 20px; padding: 28px; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.85);">
+      <div style="font-size: 36px; margin-bottom: 8px;">🤖</div>
+      <h2 style="font-size: 20px; color: #fff; margin-bottom: 6px;">SafeSlope Telegram Citizen Bot</h2>
+      <p style="font-size: 13px; color: #38bdf8; font-weight: 600; margin-bottom: 14px;">@safeslope_ner_bot (SafeSlope Citizen Bot)</p>
+
+      <div style="background: #fff; padding: 14px; border-radius: 12px; display: inline-block; margin-bottom: 14px;">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://t.me/safeslope_ner_bot" style="width: 190px; height: 190px; display: block;" alt="Telegram QR" />
+      </div>
+
+      <div style="background: #1e293b; border-radius: 10px; padding: 12px; font-size: 12px; text-align: left; color: #cbd5e1; margin-bottom: 18px; line-height: 1.5;">
+        <strong>📲 How to test live on your phone:</strong><br>
+        1. Scan this QR code or open: <code>https://t.me/safeslope_ner_bot</code><br>
+        2. Tap <strong>Start</strong> or send <code>/start</code><br>
+        3. Snap a photo of any slope or road hazard<br>
+        4. Tap <strong>📍 Share Location Pin</strong><br>
+        5. Watch it appear <strong>instantly in real time</strong> on this screen!
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <a href="https://t.me/safeslope_ner_bot" target="_blank" class="btn-demo" style="flex: 1; text-decoration: none; justify-content: center; background: linear-gradient(135deg, #0284c7, #38bdf8);">
+          🚀 Open in Telegram App
+        </a>
+        <button class="btn-demo" style="background: #334155;" onclick="closeTelegramModal()">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real Phone Free QR Modal -->
+  <div id="phoneModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+    <div style="background: #121826; border: 1px solid #1e293b; border-radius: 20px; padding: 28px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
+      <h2 style="font-size: 20px; color: #fff; margin-bottom: 8px;">📲 Test on Real Smartphone (100% FREE)</h2>
+      <p style="font-size: 13px; color: #94a3b8; margin-bottom: 14px;">Connect your phone to the same Wi-Fi network and scan with your camera:</p>
+      
+      <div style="background: #fff; padding: 14px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">
+        <img id="qrImg" src="" style="width: 180px; height: 180px; display: block;" alt="QR Code" />
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <input type="text" id="customPhoneUrl" style="width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; color: #38bdf8; font-family: monospace; font-size: 13px; text-align: center;" oninput="updateQrCode()" />
+      </div>
+
+      <div style="background: #1e293b; border-radius: 10px; padding: 12px; font-size: 12px; text-align: left; color: #cbd5e1; margin-bottom: 18px; line-height: 1.5;">
+        <strong>💡 Why this works on your phone:</strong><br>
+        • Your laptop's local Wi-Fi address is <code>192.168.1.17:8000</code>.<br>
+        • When your phone is on the same Wi-Fi, it opens your laptop's server directly!<br>
+        • Tap 📸 on your phone to snap real photos & 📍 to send real GPS pins.
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-demo" style="flex: 1;" onclick="openMobileTab()">🚀 Open in New Tab</button>
+        <button class="btn-demo" style="background: #334155;" onclick="closeRealPhoneModal()">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency Broadcast Dispatch Dossier Modal -->
+  <div id="dispatchModalOverlay" class="dispatch-modal-overlay">
+    <div class="dispatch-modal">
+      <div class="dispatch-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 20px;">🚨</span>
+          <div>
+            <h3 style="font-size: 16px; color: #fff; margin: 0;">EMERGENCY BROADCAST DISPATCH DOSSIER</h3>
+            <span id="dossierCapId" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #f87171;">CAP-2026-XXXXXX</span>
+          </div>
+        </div>
+        <button type="button" onclick="closeDispatchModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="dispatch-stats-grid">
+        <div class="dispatch-stat-box">
+          <div class="dispatch-stat-val" id="dossierTotal" style="color: #38bdf8;">0</div>
+          <div class="dispatch-stat-lbl">Recipients</div>
+        </div>
+        <div class="dispatch-stat-box">
+          <div class="dispatch-stat-val" id="dossierWa" style="color: #34d399;">0</div>
+          <div class="dispatch-stat-lbl">WhatsApp</div>
+        </div>
+        <div class="dispatch-stat-box">
+          <div class="dispatch-stat-val" id="dossierSms" style="color: #fbbf24;">0</div>
+          <div class="dispatch-stat-lbl">Cellular SMS</div>
+        </div>
+        <div class="dispatch-stat-box">
+          <div class="dispatch-stat-val" id="dossierTg" style="color: #60a5fa;">0</div>
+          <div class="dispatch-stat-lbl">Telegram</div>
+        </div>
+      </div>
+
+      <!-- Area Details & Breakdown -->
+      <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; font-size: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="background: #111827; padding: 10px; border-radius: 8px; border: 1px solid #1f2937;">
+            <div style="color: #94a3b8; font-size: 10px; text-transform: uppercase;">Affected Area / Corridor:</div>
+            <div id="dossierZone" style="color: #fff; font-weight: 700; margin-top: 2px;">Champhai - Serchhip Corridor (NH-54)</div>
+            <div id="dossierVillages" style="color: #cbd5e1; font-size: 11px; margin-top: 4px;">Villages: Chhiahtlang, Serchhip, Keitum</div>
+          </div>
+          <div style="background: #111827; padding: 10px; border-radius: 8px; border: 1px solid #1f2937;">
+            <div style="color: #94a3b8; font-size: 10px; text-transform: uppercase;">Community Amplifiers Reached:</div>
+            <div id="dossierRoles" style="color: #34d399; font-weight: 600; margin-top: 2px;">Aapda Mitra, Village Heads, Transport, Citizens</div>
+            <div id="dossierSirenStatus" style="color: #f87171; font-size: 11px; margin-top: 4px;">📢 Village Horns & Sirens: ACTIVATED</div>
+          </div>
+        </div>
+
+        <!-- Dynamic Geotechnical & Spatial Physics Calculation Breakdown (Zero Hardcoding) -->
+        <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 10px 14px;">
+          <div style="font-size: 10px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+            🔬 Dynamic Geotechnical & Spatial Physics Calculation (Zero Hardcoding)
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 11px;">
+            <div style="background: #0b1120; padding: 6px 8px; border-radius: 6px; border: 1px solid #1e293b;">
+              <span style="color: #94a3b8; font-size: 10px; display: block;">Factor of Safety (FoS)</span>
+              <strong id="dossierFos" style="color: #fbbf24; font-family: monospace;">1.12</strong>
+            </div>
+            <div style="background: #0b1120; padding: 6px 8px; border-radius: 6px; border: 1px solid #1e293b;">
+              <span style="color: #94a3b8; font-size: 10px; display: block;">Evac Window</span>
+              <strong id="dossierEvacHrs" style="color: #38bdf8; font-family: monospace;">4.5 hrs</strong>
+            </div>
+            <div style="background: #0b1120; padding: 6px 8px; border-radius: 6px; border: 1px solid #1e293b;">
+              <span style="color: #94a3b8; font-size: 10px; display: block;">Impact Radius</span>
+              <strong id="dossierRadius" style="color: #f87171; font-family: monospace;">1.4 km</strong>
+            </div>
+            <div style="background: #0b1120; padding: 6px 8px; border-radius: 6px; border: 1px solid #1e293b;">
+              <span style="color: #94a3b8; font-size: 10px; display: block;">Affected Population</span>
+              <strong id="dossierPop" style="color: #34d399; font-family: monospace;">27,480</strong>
+            </div>
+          </div>
+          <div style="margin-top: 6px; font-size: 11px; color: #cbd5e1; display: flex; justify-content: space-between;">
+            <span id="dossierCutOffRoad">Blockage: NH-54 km 42.4 (Chhiahtlang Sector)</span>
+            <span id="dossierBypass" style="color: #38bdf8; font-weight: 600;">Bypass: Keitum-Chhiahtlang R-4</span>
+          </div>
+        </div>
+
+        <!-- Vernacular Message Preview -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-weight: 700; color: #fff;">Vernacular Alert Broadcast:</span>
+            <div style="display: flex; gap: 4px;" id="dossierLangTabs">
+              <button type="button" class="notif-tab active" onclick="switchReceiptLanguage('lus')">Mizo</button>
+              <button type="button" class="notif-tab" onclick="switchReceiptLanguage('en')">English</button>
+              <button type="button" class="notif-tab" onclick="switchReceiptLanguage('as')">Assamese</button>
+              <button type="button" class="notif-tab" onclick="switchReceiptLanguage('bn')">Bengali</button>
+            </div>
+          </div>
+          <div id="dossierMsgBox" style="background: #030712; border: 1px solid #1f2937; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 11px; color: #e2e8f0; line-height: 1.5; max-height: 140px; overflow-y: auto; white-space: pre-wrap;">
+            Loading message...
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px;">
+          <button type="button" class="quick-chip" onclick="copyDossierXml()">📋 Copy ITU-T CAP XML</button>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="quick-chip" onclick="openDossierXml()" style="border-color: #38bdf8; color: #38bdf8;">🌐 View CAP XML</button>
+            <button type="button" class="btn-spike" style="padding: 6px 14px; font-size: 12px;" onclick="closeDispatchModal()">Acknowledge & Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="dashboard-container">
+    
+    <div class="top-grid">
+      
+      <!-- COLUMN 1: WhatsApp Smartphone Simulator -->
+      <div class="phone-wrapper">
+        <div class="phone-notch">
+          <span>9:41</span>
+          <span>●●● 5G 100%</span>
+        </div>
+
+        <div class="phone-wa-header">
+          <div class="wa-avatar">🛡️</div>
+          <div class="wa-info">
+            <h3>SafeSlope Mizoram Bot</h3>
+            <p>DDMA & Aapda Mitra Network • Online</p>
+          </div>
+        </div>
+
+        <div class="phone-chat-body" id="chatContainer">
+          <!-- Initial welcome message from bot -->
+          <div class="chat-bubble bot">
+            🚨 *SafeSlope-NER Citizen Emergency Network*<br>
+            District Disaster Management Authority (DDMA)<br><br>
+            👋 Chibai / Welcome to SafeSlope Emergency Assistant.<br><br>
+            Reply with a number:<br>
+            1️⃣ 📸 *Report Slope Hazard* (Crack, Rockfall, Mudflow)<br>
+            2️⃣ ⛺ *Safe Evacuation Shelters & Routes*<br>
+            3️⃣ 🆘 *Emergency SOS / Call DEOC*<br>
+            4️⃣ 🌐 *Change Language (6 NE Languages)*
+            <div class="bubble-meta">Just now • Automated</div>
+          </div>
+        </div>
+
+        <div class="phone-action-bar">
+          <div class="quick-chips">
+            <span class="quick-chip" onclick="sendSimText('1')">1️⃣ Report Hazard</span>
+            <span class="quick-chip" onclick="sendSimText('2')">2️⃣ Shelters & Routes</span>
+            <span class="quick-chip" onclick="sendSimText('3')">3️⃣ Emergency SOS</span>
+            <span class="quick-chip" onclick="sendSimText('4')">4️⃣ Ṭawng Thlak</span>
+            <span class="quick-chip" onclick="sendSimText('0')">🔄 Reset Menu</span>
+          </div>
+
+          <div class="photo-helper-row">
+            <span>📷 Attach Sample Hazard Photo:</span>
+            <select id="sampleSelect" class="select-sample" onchange="onSampleChange()">
+              <option value="rockfall">🪨 Surface Rockfall (NH-54 km 42)</option>
+              <option value="crack">⚡ Road Tension Crack (Champhai Ridge)</option>
+              <option value="mudflow">⛰️ Landslide Mudflow (Serchhip)</option>
+              <option value="culvert">🌊 Blocked Culvert #12</option>
+              <option value="clear">✅ Normal / Clear Mountain Road</option>
+            </select>
+          </div>
+
+          <div class="simulator-inputs">
+            <button class="btn-icon" title="Send GPS Location Pin" onclick="sendSimLocation()">📍</button>
+            <button class="btn-icon" title="Send Selected Hazard Photo" onclick="sendSimPhoto()">📸</button>
+            <input type="text" id="simInput" class="sim-input" placeholder="Type message or number..." onkeypress="handleKey(event)" />
+            <button class="btn-icon" onclick="sendSimText()">➤</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMN 2: AI Computer Vision Classifier Live Inspector -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2>🔬 AI Field Media Classifier (MobileNetV3)</h2>
+          <span style="font-size: 11px; color: var(--primary);">Real-Time Ingestion</span>
+        </div>
+
+        <div class="cv-body">
+          <div class="cv-photo-container">
+            <div class="cv-scanline"></div>
+            <img id="cvPhotoPreview" src="/api/comms/samples/rockfall" class="cv-photo-img" alt="Analyzed Field Hazard" />
+            <div class="cv-overlay-badge">
+              <span>⚡ Model:</span>
+              <strong style="color: #38bdf8;">MobileNetV3 + Spectral Edge</strong>
+            </div>
+          </div>
+
+          <div class="cv-results-card">
+            <div class="cv-top-result">
+              <div>
+                <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Predicted Hazard Tag</span>
+                <div class="tag-title" id="cvTag">Surface Rockfall</div>
+              </div>
+              <span class="tag-sev sev-CRITICAL" id="cvSev">CRITICAL</span>
+            </div>
+
+            <div class="confidence-meter">
+              <div class="meter-label">
+                <span>Confidence Calibration</span>
+                <strong id="cvConfidence">90.1%</strong>
+              </div>
+              <div class="meter-bar-bg">
+                <div class="meter-bar-fill" id="cvMeterBar" style="width: 90.1%;"></div>
+              </div>
+            </div>
+
+            <div class="features-grid">
+              <div class="feature-box">
+                <span>Laplacian Texture (Rock)</span>
+                <strong id="cvLaplacian">487.9</strong>
+              </div>
+              <div class="feature-box">
+                <span>Edge / Crack Density</span>
+                <strong id="cvEdge">0.023</strong>
+              </div>
+              <div class="feature-box">
+                <span>Mud / Soil Chromatic</span>
+                <strong id="cvMud">0.595</strong>
+              </div>
+              <div class="feature-box">
+                <span>Inference Latency</span>
+                <strong id="cvLatency">11.6 ms</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="hitl-alert">
+            <strong>🛡️ Human-in-the-Loop Governance:</strong><br>
+            Crowdsourced submissions from citizens & Aapda Mitra volunteers are tagged with AI confidence and routed to the <strong>DEOC Verification Queue</strong>. They serve as supporting telemetry for officers and <em>never</em> unilaterally alter regional threat levels.
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUMN 3: DEOC Verification Queue (Member 5 Dashboard Feed) -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2>🛡️ DEOC Incident Triage & Live Field Feed</h2>
+          <span class="status-pill" style="font-size: 11px;">
+            <span class="dot pulse"></span> Live Push Active
+          </span>
+        </div>
+
+        <div class="queue-body">
+          <div class="queue-filter-bar">
+            <div class="queue-tabs">
+              <button class="queue-tab active" id="tabAll" onclick="setQueueFilter('ALL')">All Reports</button>
+              <button class="queue-tab" id="tabTg" onclick="setQueueFilter('TELEGRAM')">🤖 Telegram Bot</button>
+              <button class="queue-tab" id="tabPending" onclick="setQueueFilter('PENDING')">⏳ Pending</button>
+              <button class="queue-tab" id="tabApproved" onclick="setQueueFilter('VERIFIED')">✅ Verified</button>
+            </div>
+            <input type="text" id="queueSearch" class="queue-search-input" placeholder="🔍 Search tracking ID, submitter @handle, location..." oninput="onSearchChange(event)" />
+          </div>
+
+          <div class="queue-stats-row">
+            <div class="q-stat">
+              <div class="q-stat-val" id="statTotal">0</div>
+              <div class="q-stat-lbl">Total Reports</div>
+            </div>
+            <div class="q-stat">
+              <div class="q-stat-val" style="color: #fbbf24;" id="statPending">0</div>
+              <div class="q-stat-lbl">Pending Review</div>
+            </div>
+            <div class="q-stat">
+              <div class="q-stat-val" style="color: #34d399;" id="statVerified">0</div>
+              <div class="q-stat-lbl">Verified GIS</div>
+            </div>
+            <div class="q-stat">
+              <div class="q-stat-val" style="color: #38bdf8;" id="statRate">0%</div>
+              <div class="q-stat-lbl">Approval Rate</div>
+            </div>
+          </div>
+
+          <div id="queueList" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Dynamically populated report cards -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GEOSPATIAL GIS LIVE FEED PANEL (Member 5 Integration) -->
+    <div class="gis-panel">
+      <div class="gis-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="font-size: 20px;">🗺️</div>
+          <div>
+            <h2 style="font-size: 16px; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+              Real-Time Geospatial GIS Hazard Feed
+              <span class="brand-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; font-size: 10px;">
+                RFC 7946 GeoJSON
+              </span>
+            </h2>
+            <p style="font-size: 11px; color: var(--text-muted);">
+              Live satellite-correlated crowdsourced slope hazards mapped directly from Telegram & mobile field pins
+            </p>
+          </div>
+        </div>
+
+        <div class="gis-tools">
+          <span class="status-pill" style="font-size: 11px;">
+            <span class="dot pulse" style="background: #10b981;"></span>
+            <span id="gisFeatureCount">0 Hazards Mapped</span>
+          </span>
+          <button class="btn-gis-tool" onclick="recenterMizoramMap()" title="Center view on NH-54 Corridor">
+            🎯 Recenter NH-54
+          </button>
+          <button class="btn-gis-tool" id="btnToggleCorridors" onclick="toggleHazardCorridors()" title="Toggle NH-54 and Fault Zones">
+            ⚡ Corridors: ON
+          </button>
+          <button class="btn-gis-tool" onclick="downloadLiveGeoJSON()" title="Download live GeoJSON for QGIS / ArcGIS">
+            📥 Export GeoJSON
+          </button>
+          <button class="btn-gis-tool" onclick="copyGeoJsonFeedUrl()" title="Copy live GeoJSON stream URL to clipboard">
+            📋 Copy Feed URL
+          </button>
+        </div>
+      </div>
+
+      <div class="gis-filter-bar">
+        <div class="gis-chips">
+          <span class="gis-chip active" id="chipMapAll" onclick="setMapFilter('ALL')">All Hazards</span>
+          <span class="gis-chip" id="chipMapTg" onclick="setMapFilter('TELEGRAM')">🤖 Telegram Only</span>
+          <span class="gis-chip" id="chipMapCrit" onclick="setMapFilter('CRITICAL')">🔴 Critical Only</span>
+          <span class="gis-chip" id="chipMapPending" onclick="setMapFilter('PENDING')">⏳ Pending Review</span>
+          <span class="gis-chip" id="chipMapApproved" onclick="setMapFilter('VERIFIED')">✅ Verified GIS</span>
+        </div>
+        <div id="mapHoverCoords" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #38bdf8;">
+          📍 GPS: 23.3150° N, 92.8540° E (Serchhip Sector)
+        </div>
+      </div>
+
+      <div id="gisMap"></div>
+    </div>
+
+    <!-- BOTTOM ROW: CAP Alerting & Outbox Feeds -->
+    <div class="bottom-grid">
+      
+      <!-- Bottom Left: Member 1 Risk Engine Trigger, Notification Settings & Algorithm Threshold Engine -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2>⚡ Outbound Alert Dispatcher & Landslide Thresholds</h2>
+            <div style="font-size: 11px; color: #f87171; margin-top: 2px;">Algorithm Threshold Pipeline • Area Geotargeted Delivery</div>
+          </div>
+          <button class="settings-toggle-btn" onclick="toggleNotifSettings()" type="button" title="Configure notification channels & thresholds">
+            <span id="notifSettingsToggleIcon">⚙️</span>
+            <span>Settings</span>
+          </button>
+        </div>
+
+        <div class="trigger-controls">
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">
+            Target corridor & community dispatch settings. When the landslide risk algorithm clears the threshold, it automatically cascades across all enabled channels without requiring telecom tracking infrastructure.
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label>Target Corridor / Area:</label>
+              <select id="zoneSelect">
+                <option value="Champhai - Serchhip Corridor (NH-54)">Champhai - Serchhip Corridor (NH-54)</option>
+                <option value="Aizawl South Mountain Slopes">Aizawl South Mountain Slopes</option>
+                <option value="Lunglei Hill Cut Corridor">Lunglei Hill Cut Corridor</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Risk Escalation Level:</label>
+              <select id="riskSelect">
+                <option value="HIGH">HIGH (Evacuation Advisory)</option>
+                <option value="CRITICAL">CRITICAL (Catastrophic Imminent)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Collapsible / Configurable Notification Settings Box -->
+          <div class="notif-settings-box" id="notifSettingsBox">
+            <div class="notif-tabs">
+              <button type="button" class="notif-tab active" id="tabBtnChannels" onclick="switchNotifTab('channels')">📡 Channels</button>
+              <button type="button" class="notif-tab" id="tabBtnAudience" onclick="switchNotifTab('audience')">👥 Audience</button>
+              <button type="button" class="notif-tab" id="tabBtnThresholds" onclick="switchNotifTab('thresholds')">⚙️ Thresholds</button>
+              <button type="button" class="notif-tab" id="tabBtnDirectives" onclick="switchNotifTab('directives')">🌐 Directives</button>
+              <button type="button" class="notif-tab" id="tabBtnLivedemo" onclick="switchNotifTab('livedemo')">📱 Live Demo Phone</button>
+            </div>
+
+            <!-- Tab 1: Dispatch Channels -->
+            <div class="notif-tab-content active" id="tabContentChannels">
+              <div style="font-size: 11px; color: #94a3b8;">Active channels to broadcast when trigger is pressed or threshold is cleared:</div>
+              <div class="channel-chips-grid">
+                <button type="button" class="channel-chip-btn active" id="chkWa" onclick="toggleChannel('whatsapp')">
+                  <span>💬</span><span>WhatsApp</span>
+                </button>
+                <button type="button" class="channel-chip-btn active" id="chkSms" onclick="toggleChannel('sms')">
+                  <span>📱</span><span>Cellular SMS</span>
+                </button>
+                <button type="button" class="channel-chip-btn active" id="chkTg" onclick="toggleChannel('telegram')">
+                  <span>🤖</span><span>Telegram</span>
+                </button>
+                <button type="button" class="channel-chip-btn active" id="chkCap" onclick="toggleChannel('cap')">
+                  <span>📡</span><span>NDMA CAP</span>
+                </button>
+                <button type="button" class="channel-chip-btn active" id="chkSiren" onclick="toggleChannel('siren')">
+                  <span>📢</span><span>Village Siren/PA</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab 2: Audience & Area Directory -->
+            <div class="notif-tab-content" id="tabContentAudience">
+              <div class="form-group">
+                <label>Recipients Selection (Community Directory):</label>
+                <select id="selAudience">
+                  <option value="all_in_area">All Registered in Area (Citizens + Volunteers + Heads + Transport)</option>
+                  <option value="volunteers_only">Aapda Mitra & Village Heads (First Responders with Sirens)</option>
+                  <option value="full_blast">Full Corridor Broadcast (Entire Directory)</option>
+                </select>
+              </div>
+              <div style="font-size: 11px; color: #38bdf8; background: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                ℹ️ <strong>Zero-Infrastructure Solution</strong>: Mountain contacts are indexed by corridor/village. If a micro-village has few direct users, alerts cascade to Aapda Mitra leaders and Village Council Presidents to sound village horns.
+              </div>
+            </div>
+
+            <!-- Tab 3: Algorithm Thresholds -->
+            <div class="notif-tab-content" id="tabContentThresholds">
+              <div class="thresh-slider-row">
+                <div class="thresh-slider-head">
+                  <span>Warning Threshold (Triggers HIGH Alert):</span>
+                  <span class="thresh-val" id="dispThreshWarning">70%</span>
+                </div>
+                <input type="range" id="inputThreshWarning" min="40" max="90" value="70" oninput="onThresholdSliderChange()" />
+              </div>
+
+              <div class="thresh-slider-row">
+                <div class="thresh-slider-head">
+                  <span>Critical Threshold (Triggers CRITICAL Alert):</span>
+                  <span class="thresh-val" id="dispThreshCritical" style="color: #ef4444;">85%</span>
+                </div>
+                <input type="range" id="inputThreshCritical" min="60" max="98" value="85" oninput="onThresholdSliderChange()" />
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #94a3b8; margin-top: 4px;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="chkAutoBroadcast" checked />
+                  <span>Auto-Broadcast on Algorithm Threshold breach</span>
+                </label>
+                <button type="button" class="quick-chip" onclick="saveThresholdsToBackend()" style="padding: 3px 8px; font-size: 10px;">💾 Save</button>
+              </div>
+            </div>
+
+            <!-- Tab 4: Vernacular Languages & Directives -->
+            <div class="notif-tab-content" id="tabContentDirectives">
+              <div class="form-group">
+                <label>Designated Mountain Bypass Route:</label>
+                <input type="text" id="inputBypassRoute" value="Eastern District Bypass Road B-7" />
+              </div>
+              <div class="form-group">
+                <label>Custom Emergency Directive:</label>
+                <input type="text" id="inputCustomDirective" placeholder="e.g. Avoid km 42 culvert. Evacuate to Keitum Primary School." />
+              </div>
+            </div>
+
+            <!-- Tab 5: Live Demo Phone & Telegram / WhatsApp Bridge -->
+            <div class="notif-tab-content" id="tabContentLivedemo">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 11px; font-weight: 700; color: #38bdf8;">🤖 Telegram Bot:</span>
+                <span id="liveTgStatusBadge" class="status-pill" style="font-size: 10px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #10b981;">
+                  <span class="dot pulse" style="background: #10b981;"></span> @safeslope_ner_bot (LIVE)
+                </span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 11px; font-weight: 700; color: #25d366;">💬 WhatsApp Gateway:</span>
+                <span id="liveWaStatusBadge" class="status-pill" style="font-size: 10px; background: rgba(37, 211, 102, 0.15); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.4);">
+                  <span class="dot" style="background: #25d366;"></span> Checking...
+                </span>
+              </div>
+              <div style="font-size: 11px; color: #cbd5e1; line-height: 1.4; margin-bottom: 8px;">
+                Deliver a live test alert directly to your phone during audience presentations:
+              </div>
+              <div style="display: grid; grid-template-columns: 95px 1fr auto; gap: 6px; align-items: center;">
+                <select id="selLiveTestTarget" onchange="updateLiveTargetPlaceholder()" style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 11px; padding: 6px;">
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="telegram">Telegram</option>
+                  <option value="sms">Cellular SMS</option>
+                </select>
+                <input type="text" id="inputLiveDestination" placeholder="Enter WhatsApp Phone (+919436122880)" style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #38bdf8; font-family: monospace; font-size: 11px; padding: 6px 8px;" />
+                <button type="button" class="btn-algo-sim" onclick="sendLiveDemoTestAlert()" style="padding: 6px 12px; font-size: 11px;">
+                  <span>🚀 Send Alert</span>
+                </button>
+              </div>
+              <div id="liveTestStatusMsg" style="font-size: 10px; font-family: monospace; color: #94a3b8; margin-top: 6px;">
+                👉 <em>Enter your WhatsApp phone with country code (e.g. +919436122880) to dispatch live test alert!</em>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          <button class="btn-spike" onclick="triggerSimulatedBroadcast()">
+            <span>🚨 Trigger Emergency Broadcast & CAP Alert</span>
+          </button>
+
+          <!-- Algorithm Prediction Ingestion Simulator -->
+          <div style="background: rgba(79, 70, 229, 0.08); border: 1px dashed rgba(99, 102, 241, 0.4); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; margin-top: 2px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 700; color: #a5b4fc;">🤖 Simulate Landslide Algorithm Post:</span>
+              <span style="font-size: 10px; color: #818cf8; font-family: monospace;">POST /api/algorithm/landslide-risk</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div style="flex: 1; display: flex; align-items: center; gap: 4px; background: #0f172a; padding: 4px 8px; border-radius: 6px; border: 1px solid #334155;">
+                <span style="font-size: 11px; color: #94a3b8;">Risk:</span>
+                <input type="number" id="simRiskInput" value="84.5" min="0" max="100" step="0.5" style="width: 55px; background: transparent; border: none; color: #f87171; font-weight: 700; font-family: monospace; font-size: 12px;" />
+                <span style="font-size: 11px; color: #94a3b8;">%</span>
+              </div>
+              <div style="flex: 1; display: flex; align-items: center; gap: 4px; background: #0f172a; padding: 4px 8px; border-radius: 6px; border: 1px solid #334155;">
+                <span style="font-size: 11px; color: #94a3b8;">Conf:</span>
+                <input type="number" id="simConfInput" value="88.0" min="0" max="100" step="0.5" style="width: 50px; background: transparent; border: none; color: #38bdf8; font-weight: 700; font-family: monospace; font-size: 12px;" />
+                <span style="font-size: 11px; color: #94a3b8;">%</span>
+              </div>
+              <button type="button" class="btn-algo-sim" onclick="simulateAlgorithmPrediction()" title="Simulate external algorithm crossing the threshold">
+                <span>⚡ Test Auto-Trigger</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Right: ITU-T X.1303 / NDMA SACHET CAP Alert Feed -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2>📡 NDMA SACHET / ITU-T X.1303 CAP Alert Feed</h2>
+          <div style="display: flex; gap: 8px;">
+            <button class="quick-chip" onclick="copyCapXml()">📋 Copy XML</button>
+            <button class="quick-chip" onclick="downloadCapXml()">💾 Download XML</button>
+          </div>
+        </div>
+
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+          <div class="cap-xml-box" id="capXmlView">Loading standard ITU-T X.1303 CAP v1.2 XML...</div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+            <span>Standard: <strong>ITU-T X.1303 / OASIS CAP v1.2</strong></span>
+            <span>Broadcasting Protocol: <strong>NDMA SACHET</strong></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // State management
+    let currentSampleKey = "rockfall";
+    let latestCapIdentifier = "";
+    let allReportsCache = [];
+    let currentQueueFilter = "ALL";
+    let currentSearchQuery = "";
+    let currentSelectedReport = null;
+    let audioAlertEnabled = true;
+    let selectedTriageAction = "APPROVE";
+    let currentImgZoom = 1;
+    let latestBannerReport = null;
+    let bannerTimer = null;
+
+    // Geospatial Leaflet Map State
+    let leafletMap = null;
+    let markerLayerGroup = null;
+    let corridorsLayerGroup = null;
+    let corridorsVisible = true;
+    let currentMapFilter = "ALL";
+    let mapMarkersMap = new Map();
+
+    // Initialize on page load
+    window.addEventListener("DOMContentLoaded", () => {
+      initGeospatialMap();
+      fetchQueue();
+      fetchCapAlerts();
+      loadThresholdSettings();
+      // Listen to SSE live stream for real-time push
+      connectSSE();
+    });
+
+    // Synthesized Web Audio Chime (Zero External Files)
+    function playAlertChime() {
+      if (!audioAlertEnabled) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        if (ctx.state === "suspended") ctx.resume();
+
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.setValueAtTime(880.00, now + 0.12); // A5
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.6);
+      } catch (e) {
+        console.warn("Audio chime error:", e);
+      }
+    }
+
+    function toggleSound() {
+      audioAlertEnabled = !audioAlertEnabled;
+      const lbl = document.getElementById("soundLabel");
+      const btn = document.getElementById("btnSoundToggle");
+      if (audioAlertEnabled) {
+        lbl.innerText = "🔔 Audio Chime: ON";
+        btn.style.borderColor = "#10b981";
+        playAlertChime();
+      } else {
+        lbl.innerText = "🔕 Audio Chime: OFF";
+        btn.style.borderColor = "#334155";
+      }
+    }
+
+    function showIncidentBanner(rep) {
+      latestBannerReport = rep;
+      const banner = document.getElementById("liveIncidentBanner");
+      const details = document.getElementById("bannerDetails");
+      const sender = rep.sender_username ? `@${rep.sender_username}` : (rep.sender_name || rep.sender_phone);
+      details.innerHTML = `<strong>${rep.tracking_id}</strong> reported via <strong>${rep.channel || 'Telegram'}</strong> by <strong>${sender}</strong> • ${rep.classification} (${rep.severity})`;
+      
+      banner.classList.add("active");
+      if (bannerTimer) clearTimeout(bannerTimer);
+      bannerTimer = setTimeout(() => {
+        banner.classList.remove("active");
+      }, 9000);
+    }
+
+    function closeIncidentBanner() {
+      const banner = document.getElementById("liveIncidentBanner");
+      banner.classList.remove("active");
+      if (bannerTimer) clearTimeout(bannerTimer);
+    }
+
+    function assessLatestFromBanner() {
+      closeIncidentBanner();
+      if (latestBannerReport) {
+        openReportModal(latestBannerReport.id);
+      }
+    }
+
+    function connectSSE() {
+      try {
+        const evtSource = new EventSource("/api/comms/stream");
+        
+        evtSource.onopen = () => {
+          const text = document.getElementById("liveStreamText");
+          const dot = document.getElementById("liveDot");
+          if (dot) dot.style.background = "#10b981";
+          if (text) text.innerHTML = "Live Feed: <strong>SSE Connected</strong>";
+        };
+
+        evtSource.onmessage = (e) => {
+          if (!e.data || e.data.trim() === "ping") return;
+          try {
+            const data = JSON.parse(e.data);
+            if (data.type === "NEW_FIELD_REPORT") {
+              const newRep = data.payload;
+              playAlertChime();
+              showIncidentBanner(newRep);
+              
+              const idx = allReportsCache.findIndex(r => r.id === newRep.id || r.tracking_id === newRep.tracking_id);
+              if (idx >= 0) {
+                allReportsCache[idx] = newRep;
+              } else {
+                allReportsCache.unshift(newRep);
+              }
+              
+              // Live update column 2 AI preview
+              if (newRep.image_url) {
+                const cvPhoto = document.getElementById("cvPhotoPreview");
+                if (cvPhoto) cvPhoto.src = newRep.image_url;
+                const cvTag = document.getElementById("cvTag");
+                if (cvTag) cvTag.innerText = newRep.classification;
+                const cvSev = document.getElementById("cvSev");
+                if (cvSev) {
+                  cvSev.innerText = newRep.severity;
+                  cvSev.className = `tag-sev sev-${newRep.severity}`;
+                }
+                const cvConf = document.getElementById("cvConfidence");
+                if (cvConf) cvConf.innerText = `${newRep.confidence_pct}%`;
+                const cvBar = document.getElementById("cvMeterBar");
+                if (cvBar) cvBar.style.width = `${newRep.confidence_pct}%`;
+              }
+              
+              renderQueue();
+              renderMapHazards();
+              fetchQueueStats();
+
+              // Smoothly fly camera to new incident location on GIS map & open popup
+              if (leafletMap && newRep.lat && newRep.lng) {
+                leafletMap.flyTo([newRep.lat, newRep.lng], 13, { duration: 1.5 });
+                setTimeout(() => {
+                  const m = mapMarkersMap.get(newRep.id);
+                  if (m) m.openPopup();
+                }, 1600);
+              }
+            } else if (data.type === "REPORT_REVIEWED") {
+              const rev = data.payload;
+              const rep = allReportsCache.find(r => r.id === rev.report_id);
+              if (rep) {
+                rep.review_status = rev.status;
+                rep.verified = rev.verified;
+                rep.reviewed_by = rev.reviewed_by;
+                if (rev.severity) rep.severity = rev.severity;
+                if (rev.assigned_unit) rep.assigned_unit = rev.assigned_unit;
+                if (rev.deoc_notes) rep.deoc_notes = rev.deoc_notes;
+              }
+              renderQueue();
+              renderMapHazards();
+              fetchQueueStats();
+            } else if (data.type === "ALERT_BROADCAST_DISPATCHED") {
+              fetchCapAlerts();
+            }
+          } catch (err) {
+            console.error("SSE JSON parse error", err);
+          }
+        };
+
+        evtSource.onerror = () => {
+          const text = document.getElementById("liveStreamText");
+          const dot = document.getElementById("liveDot");
+          if (dot) dot.style.background = "#f59e0b";
+          if (text) text.innerHTML = "Live Feed: <strong>Reconnecting...</strong>";
+          setTimeout(connectSSE, 5000);
+        };
+      } catch (err) {
+        console.log("SSE streaming fallback to polling.");
+        setInterval(fetchQueue, 3500);
+      }
+    }
+
+    function appendMessage(sender, text, mediaUrl = null) {
+      const chat = document.getElementById("chatContainer");
+      const bubble = document.createElement("div");
+      bubble.className = `chat-bubble ${sender}`;
+
+      let mediaHtml = "";
+      if (mediaUrl) {
+        mediaHtml = `<img src="${mediaUrl}" class="chat-media-preview" alt="Field Photo" />`;
+      }
+
+      const formatted = text.replace(/\*(.*?)\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
+      bubble.innerHTML = `${mediaHtml}${formatted}<div class="bubble-meta">Just now • ${sender === 'user' ? 'Sent' : 'Delivered'}</div>`;
+      chat.appendChild(bubble);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function sendSimText(overrideText = null) {
+      const input = document.getElementById("simInput");
+      const text = overrideText !== null ? overrideText : input.value.trim();
+      if (!text) return;
+      input.value = "";
+
+      appendMessage("user", text);
+
+      try {
+        const resp = await fetch("/api/comms/simulate/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ body: text })
+        });
+        const data = await resp.json();
+        if (data.reply) {
+          appendMessage("bot", data.reply);
+        }
+      } catch (err) {
+        appendMessage("bot", "⚠️ Connection error to bot service.");
+      }
+    }
+
+    function onSampleChange() {
+      currentSampleKey = document.getElementById("sampleSelect").value;
+      const previewImg = document.getElementById("cvPhotoPreview");
+      previewImg.src = `/api/comms/samples/${currentSampleKey}`;
+    }
+
+    async function sendSimPhoto() {
+      const sampleKey = document.getElementById("sampleSelect").value;
+      appendMessage("user", `[Attached Photo: ${sampleKey.toUpperCase()}]`, `/api/comms/samples/${sampleKey}`);
+
+      try {
+        const resp = await fetch("/api/comms/simulate/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            body: "Photo attached from mobile camera",
+            sample_key: sampleKey
+          })
+        });
+        const data = await resp.json();
+        if (data.reply) {
+          appendMessage("bot", data.reply);
+        }
+
+        // Also update the CV Inspector live
+        updateCVInspector(sampleKey);
+      } catch (err) {
+        appendMessage("bot", "⚠️ Error processing media.");
+      }
+    }
+
+    async function sendSimLocation() {
+      const lat = 23.3102;
+      const lng = 92.8524;
+      appendMessage("user", `📍 Shared Location Pin: Serchhip Corridor (${lat}° N, ${lng}° E)`);
+
+      try {
+        const resp = await fetch("/api/comms/simulate/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            body: "GPS Location Pin",
+            lat: lat,
+            lng: lng
+          })
+        });
+        const data = await resp.json();
+        if (data.reply) {
+          appendMessage("bot", data.reply);
+        }
+        fetchQueue();
+      } catch (err) {
+        appendMessage("bot", "⚠️ Error updating location.");
+      }
+    }
+
+    function handleKey(e) {
+      if (e.key === "Enter") sendSimText();
+    }
+
+    async function updateCVInspector(sampleKey) {
+      try {
+        const resp = await fetch(`/api/comms/samples/${sampleKey}`);
+        const blob = await resp.blob();
+        const formData = new FormData();
+        formData.append("file", blob, "photo.jpg");
+
+        const cvResp = await fetch("/api/comms/classify", {
+          method: "POST",
+          body: formData
+        });
+        const res = await cvResp.json();
+
+        document.getElementById("cvTag").innerText = res.tag;
+        document.getElementById("cvSev").innerText = res.severity;
+        document.getElementById("cvSev").className = `tag-sev sev-${res.severity}`;
+        document.getElementById("cvConfidence").innerText = `${res.confidence_pct}%`;
+        document.getElementById("cvMeterBar").style.width = `${res.confidence_pct}%`;
+        document.getElementById("cvLatency").innerText = `${res.latency_ms} ms`;
+
+        if (res.visual_features) {
+          document.getElementById("cvLaplacian").innerText = res.visual_features.laplacian_texture_var;
+          document.getElementById("cvEdge").innerText = res.visual_features.edge_density;
+          document.getElementById("cvMud").innerText = res.visual_features.mud_ratio;
+        }
+      } catch (e) {
+        console.error("CV inspector error", e);
+      }
+    }
+
+    async function fetchQueue() {
+      try {
+        const [qResp, sResp] = await Promise.all([
+          fetch("/api/comms/queue"),
+          fetch("/api/comms/queue/stats")
+        ]);
+        allReportsCache = await qResp.json();
+        const stats = await sResp.json();
+        updateStatsView(stats);
+        renderQueue();
+        renderMapHazards();
+      } catch (err) {
+        console.error("Error loading queue", err);
+      }
+    }
+
+    async function fetchQueueStats() {
+      try {
+        const sResp = await fetch("/api/comms/queue/stats");
+        const stats = await sResp.json();
+        updateStatsView(stats);
+      } catch (e) {}
+    }
+
+    function updateStatsView(stats) {
+      document.getElementById("statTotal").innerText = stats.total_reports;
+      document.getElementById("statPending").innerText = stats.pending_review;
+      document.getElementById("statVerified").innerText = stats.verified_approved;
+      document.getElementById("statRate").innerText = `${stats.verification_rate_pct}%`;
+    }
+
+    function setQueueFilter(filter) {
+      currentQueueFilter = filter;
+      document.querySelectorAll(".queue-tab").forEach(tab => tab.classList.remove("active"));
+      if (filter === "ALL") document.getElementById("tabAll").classList.add("active");
+      else if (filter === "TELEGRAM") document.getElementById("tabTg").classList.add("active");
+      else if (filter === "PENDING") document.getElementById("tabPending").classList.add("active");
+      else if (filter === "VERIFIED") document.getElementById("tabApproved").classList.add("active");
+      renderQueue();
+    }
+
+    function onSearchChange(e) {
+      currentSearchQuery = e.target.value.toLowerCase().trim();
+      renderQueue();
+    }
+
+    function renderQueue() {
+      const container = document.getElementById("queueList");
+      if (!container) return;
+
+      let filtered = allReportsCache.filter(rep => {
+        // Filter by tab
+        if (currentQueueFilter === "TELEGRAM") {
+          const isTg = rep.channel === "Telegram Bot" || (rep.sender_phone && rep.sender_phone.startsWith("tg_")) || rep.sender_username;
+          if (!isTg) return false;
+        } else if (currentQueueFilter === "PENDING") {
+          if (rep.review_status !== "PENDING_REVIEW") return false;
+        } else if (currentQueueFilter === "VERIFIED") {
+          if (rep.review_status !== "VERIFIED_APPROVED") return false;
+        }
+
+        // Filter by search query
+        if (currentSearchQuery) {
+          const haystack = `${rep.tracking_id} ${rep.classification} ${rep.sender_name || ''} ${rep.sender_username || ''} ${rep.sender_phone || ''} ${rep.location_str || ''} ${rep.raw_notes || ''}`.toLowerCase();
+          if (!haystack.includes(currentSearchQuery)) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 32px 16px; text-align: center; color: #64748b; background: #0f172a; border-radius: 12px; border: 1px dashed #334155;">
+            <div style="font-size: 26px; margin-bottom: 6px;">📭</div>
+            <div style="font-size: 13px; font-weight: 600; color: #94a3b8;">No reports match filter</div>
+            <p style="font-size: 11px; margin-top: 4px;">Snap & send a photo to <strong>@safeslope_ner_bot</strong> on Telegram to see it live!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = "";
+      filtered.forEach(rep => {
+        const isTelegram = rep.channel === "Telegram Bot" || (rep.sender_phone && rep.sender_phone.startsWith("tg_")) || rep.sender_username;
+        const channelBadgeHtml = isTelegram 
+          ? `<span class="channel-pill channel-tg">🤖 Telegram ${rep.sender_username ? '@' + rep.sender_username : ''}</span>`
+          : `<span class="channel-pill channel-wa">💬 WhatsApp</span>`;
+
+        const isPending = rep.review_status === "PENDING_REVIEW";
+        const isApproved = rep.review_status === "VERIFIED_APPROVED";
+
+        const actionButtons = isPending ? `
+          <div class="rep-actions">
+            <button class="btn-assess" onclick="openReportModal(${rep.id})">🔍 Assess & Full Dossier</button>
+            <button class="btn-approve" onclick="quickReviewReport(${rep.id}, 'APPROVE')">✓ Quick Verify</button>
+            <button class="btn-reject" onclick="quickReviewReport(${rep.id}, 'REJECT')">✕ Reject</button>
+          </div>
+        ` : `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">
+            <span style="font-size: 11px; color: ${isApproved ? '#34d399' : '#f87171'};">
+              ${isApproved ? '✅ Verified GIS' : '✕ Rejected'} by ${rep.reviewed_by || 'DEOC Officer'}
+            </span>
+            <button class="btn-assess" style="padding: 4px 8px; font-size: 10px;" onclick="openReportModal(${rep.id})">
+              🔍 Inspect
+            </button>
+          </div>
+        `;
+
+        const card = document.createElement("div");
+        card.className = "report-card";
+        if (isTelegram) card.style.borderColor = "rgba(56, 189, 248, 0.4)";
+
+        const displayImg = rep.image_url || "/api/comms/samples/rockfall";
+        const senderDisplay = rep.sender_name || (rep.sender_username ? '@' + rep.sender_username : rep.sender_phone);
+
+        card.innerHTML = `
+          <div class="rep-header">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="rep-tracking">${rep.tracking_id}</span>
+              ${channelBadgeHtml}
+            </div>
+            <span class="rep-status-badge status-${rep.review_status}">${rep.review_status.replace('_', ' ')}</span>
+          </div>
+
+          <div class="rep-content">
+            <div class="rep-thumb-wrap" onclick="openReportModal(${rep.id})" title="Click to view actual image & assess">
+              <img src="${displayImg}" class="rep-thumb" alt="Report Photo" onerror="this.src='/api/comms/samples/rockfall'" />
+              <div class="rep-thumb-overlay"><span style="color:#fff; font-size:12px;">🔍 Zoom</span></div>
+            </div>
+
+            <div class="rep-details">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="rep-tag">${rep.classification}</div>
+                <span class="tag-sev sev-${rep.severity}" style="font-size: 9px; padding: 2px 5px;">${rep.severity}</span>
+              </div>
+              <div style="font-size: 11px; color: #38bdf8; margin-top: 1px;">
+                ⚡ ${rep.confidence_pct}% AI Conf • 📍 ${rep.location_str || (rep.lat + ', ' + rep.lng)}
+              </div>
+              <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                From: <strong>${senderDisplay}</strong>
+              </div>
+              ${rep.raw_notes ? `<div style="font-size: 11px; color: #cbd5e1; margin-top: 3px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">"${rep.raw_notes}"</div>` : ''}
+            </div>
+          </div>
+          ${actionButtons}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Modal Operations
+    function openReportModal(reportId) {
+      const rep = allReportsCache.find(r => r.id === reportId);
+      if (!rep) return;
+      currentSelectedReport = rep;
+      currentImgZoom = 1;
+
+      document.getElementById("modalTrackingBadge").innerText = rep.tracking_id;
+      const isTelegram = rep.channel === "Telegram Bot" || (rep.sender_phone && rep.sender_phone.startsWith("tg_")) || rep.sender_username;
+      const chBadge = document.getElementById("modalChannelBadge");
+      chBadge.className = isTelegram ? "channel-pill channel-tg" : "channel-pill channel-wa";
+      chBadge.innerText = isTelegram ? "🤖 Telegram Bot" : "💬 WhatsApp";
+
+      const mainImg = document.getElementById("modalImg");
+      mainImg.src = rep.image_url || "/api/comms/samples/rockfall";
+      mainImg.style.transform = "scale(1)";
+
+      document.getElementById("modalImgTag").innerText = `${rep.classification} (${rep.confidence_pct}% AI Conf)`;
+
+      // CV Features
+      document.getElementById("modalCvTag").innerText = rep.classification;
+      document.getElementById("modalCvSev").innerText = rep.severity;
+      document.getElementById("modalCvSev").className = `tag-sev sev-${rep.severity}`;
+      document.getElementById("modalCvConf").innerText = `${rep.confidence_pct}%`;
+      document.getElementById("modalCvBar").style.width = `${rep.confidence_pct}%`;
+
+      const cv = rep.cv_details?.visual_features || {};
+      document.getElementById("modalLaplacian").innerText = cv.laplacian_texture_var ?? "487.9";
+      document.getElementById("modalEdge").innerText = cv.edge_density ?? "0.023";
+      document.getElementById("modalMud").innerText = cv.mud_ratio ?? "0.595";
+      document.getElementById("modalLatency").innerText = rep.cv_details?.latency_ms ? `${rep.cv_details.latency_ms} ms` : "11.6 ms";
+
+      // Submitter Info
+      const senderDisplay = rep.sender_name || (rep.sender_username ? `@${rep.sender_username}` : rep.sender_phone);
+      document.getElementById("modalSenderName").innerText = senderDisplay;
+      document.getElementById("modalChannelDetail").innerText = isTelegram ? `Telegram Bot (@safeslope_ner_bot)` : `WhatsApp Verified Line`;
+      document.getElementById("modalChatId").innerText = rep.telegram_chat_id || (isTelegram ? rep.sender_phone.replace('tg_', '') : 'N/A');
+      document.getElementById("modalSubmittedAt").innerText = rep.submitted_at;
+      document.getElementById("modalCoords").innerText = `${rep.lat.toFixed(4)}° N, ${rep.lng.toFixed(4)}° E`;
+      document.getElementById("modalLocStr").innerText = rep.location_str || "Serchhip Mountain Corridor";
+
+      document.getElementById("modalMapLink").href = `https://maps.google.com/?q=${rep.lat},${rep.lng}`;
+      document.getElementById("modalOsmLink").href = `https://www.openstreetmap.org/?mlat=${rep.lat}&mlon=${rep.lng}#map=16/${rep.lat}/${rep.lng}`;
+
+      document.getElementById("modalCitizenNotes").innerText = `"${rep.raw_notes || 'No accompanying notes submitted.'}"`;
+
+      // Assessment controls
+      const curStatus = document.getElementById("modalCurrentStatus");
+      curStatus.innerText = rep.review_status.replace('_', ' ');
+      curStatus.className = `rep-status-badge status-${rep.review_status}`;
+
+      selectActionChoice(rep.review_status === "REJECTED" ? "REJECT" : "APPROVE");
+      document.getElementById("modalAssessSeverity").value = rep.severity || "HIGH";
+      if (rep.assigned_unit) {
+        document.getElementById("modalAssessUnit").value = rep.assigned_unit;
+      }
+      document.getElementById("modalAssessNotes").value = rep.deoc_notes || (rep.review_status === "VERIFIED_APPROVED" ? "Verified by DEOC duty officer; road crew dispatched." : "");
+
+      document.getElementById("reportModal").classList.add("open");
+    }
+
+    function closeReportModal() {
+      document.getElementById("reportModal").classList.remove("open");
+      currentSelectedReport = null;
+    }
+
+    function selectActionChoice(action) {
+      selectedTriageAction = action;
+      const btnApprove = document.getElementById("btnChoiceApprove");
+      const btnReject = document.getElementById("btnChoiceReject");
+      if (action === "APPROVE") {
+        btnApprove.className = "btn-choice active-approve";
+        btnReject.className = "btn-choice";
+      } else {
+        btnApprove.className = "btn-choice";
+        btnReject.className = "btn-choice active-reject";
+      }
+    }
+
+    async function submitReportAssessment() {
+      if (!currentSelectedReport) return;
+      const reportId = currentSelectedReport.id;
+      const sev = document.getElementById("modalAssessSeverity").value;
+      const unit = document.getElementById("modalAssessUnit").value;
+      const notes = document.getElementById("modalAssessNotes").value.trim();
+      const notify = document.getElementById("modalNotifyCitizen").checked;
+
+      try {
+        const resp = await fetch(`/api/comms/queue/${reportId}/action`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: selectedTriageAction,
+            officer_name: "DEOC Duty Officer",
+            deoc_notes: notes || (selectedTriageAction === "APPROVE" ? "Verified by DEOC Duty Officer" : "Rejected by DEOC Duty Officer"),
+            adjusted_severity: sev,
+            assigned_unit: unit,
+            notify_citizen: notify,
+          })
+        });
+
+        if (!resp.ok) throw new Error("Assessment submission failed");
+        const updated = await resp.json();
+
+        // Update local report
+        Object.assign(currentSelectedReport, updated);
+        alert(`✅ Assessment for ${currentSelectedReport.tracking_id} successfully recorded!\nStatus: ${updated.review_status}\nResponse Unit: ${unit}${notify ? '\nInstant citizen notification dispatched to Telegram!' : ''}`);
+        closeReportModal();
+        fetchQueue();
+      } catch (err) {
+        alert("Failed to submit assessment: " + err.message);
+      }
+    }
+
+    async function quickReviewReport(id, action) {
+      try {
+        await fetch(`/api/comms/queue/${id}/action`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: action,
+            officer_name: "DEOC Duty Officer",
+            notify_citizen: true,
+          })
+        });
+        fetchQueue();
+      } catch (e) {
+        alert("Action failed");
+      }
+    }
+
+    // Image Zoom & Lightbox
+    function zoomImage(factor) {
+      currentImgZoom *= factor;
+      if (currentImgZoom < 0.5) currentImgZoom = 0.5;
+      if (currentImgZoom > 3.0) currentImgZoom = 3.0;
+      document.getElementById("modalImg").style.transform = `scale(${currentImgZoom})`;
+    }
+
+    function resetZoom() {
+      currentImgZoom = 1;
+      document.getElementById("modalImg").style.transform = "scale(1)";
+    }
+
+    function openLightboxFromModal() {
+      const src = document.getElementById("modalImg").src;
+      document.getElementById("lightboxImg").src = src;
+      document.getElementById("lightboxModal").classList.add("open");
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightboxModal").classList.remove("open");
+    }
+
+    // Telegram QR Modal
+    function openTelegramModal() {
+      document.getElementById("telegramModal").style.display = "flex";
+    }
+
+    function closeTelegramModal() {
+      document.getElementById("telegramModal").style.display = "none";
+    }
+
+    // Export Incident Dossier (Formatted Print)
+    function exportIncidentDossier() {
+      if (!currentSelectedReport) return;
+      const rep = currentSelectedReport;
+      const printWin = window.open("", "_blank", "width=800,height=900");
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>DEOC Incident Dossier - ${rep.tracking_id}</title>
+          <style>
+            body { font-family: 'Arial', sans-serif; padding: 30px; color: #111; line-height: 1.5; }
+            h1 { font-size: 20px; border-bottom: 2px solid #0284c7; padding-bottom: 8px; margin-bottom: 12px; }
+            .badge { display: inline-block; padding: 3px 8px; background: #e0f2fe; color: #0284c7; font-weight: bold; border-radius: 4px; font-size: 12px; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+            .box { border: 1px solid #ccc; padding: 12px; border-radius: 6px; }
+            img { max-width: 100%; max-height: 300px; object-fit: contain; border: 1px solid #ddd; border-radius: 6px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            td { padding: 6px; border-bottom: 1px solid #eee; font-size: 13px; }
+            td:first-child { font-weight: bold; color: #555; width: 40%; }
+          </style>
+        </head>
+        <body>
+          <h1>DISTRICT EMERGENCY OPERATION CENTER (DEOC) - INCIDENT DOSSIER</h1>
+          <div>Tracking ID: <span class="badge">${rep.tracking_id}</span> • Status: <strong>${rep.review_status}</strong></div>
+          
+          <div class="grid">
+            <div class="box">
+              <h3>Field Hazard Photo</h3>
+              <img src="${rep.image_url || '/api/comms/samples/rockfall'}" alt="Photo" />
+            </div>
+            <div class="box">
+              <h3>Telemetry & Origin</h3>
+              <table>
+                <tr><td>Hazard Classification:</td><td><strong>${rep.classification}</strong></td></tr>
+                <tr><td>Assessed Severity:</td><td><strong>${rep.severity}</strong></td></tr>
+                <tr><td>AI Confidence:</td><td>${rep.confidence_pct}%</td></tr>
+                <tr><td>Submitter:</td><td>${rep.sender_name || rep.sender_username || rep.sender_phone}</td></tr>
+                <tr><td>Platform / Channel:</td><td>${rep.channel || 'Telegram Bot'}</td></tr>
+                <tr><td>GPS Coordinates:</td><td>${rep.lat}° N, ${rep.lng}° E</td></tr>
+                <tr><td>Landmark:</td><td>${rep.location_str}</td></tr>
+                <tr><td>Timestamp:</td><td>${rep.submitted_at}</td></tr>
+                <tr><td>Assigned Unit:</td><td>${rep.assigned_unit || 'None'}</td></tr>
+                <tr><td>Reviewed By:</td><td>${rep.reviewed_by || 'Pending'}</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="box" style="margin-top: 16px;">
+            <h3>Citizen Narrative</h3>
+            <p><em>"${rep.raw_notes || 'No description provided'}"</em></p>
+          </div>
+
+          <div class="box" style="margin-top: 16px;">
+            <h3>Official Assessment & Dispatch Remarks</h3>
+            <p>${rep.deoc_notes || 'Ground truth verification completed by DEOC Duty Officer.'}</p>
+          </div>
+        </body>
+        </html>
+      `;
+      printWin.document.write(html);
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => printWin.print(), 400);
+    }
+
+    // ===================================================================
+    // Geospatial Live Feed GIS Map Controller (Member 5 Integration)
+    // ===================================================================
+    function initGeospatialMap() {
+      try {
+        if (typeof L === "undefined") {
+          console.warn("Leaflet library not yet loaded; retrying in 400ms...");
+          setTimeout(initGeospatialMap, 400);
+          return;
+        }
+
+        // Initialize map centered at Serchhip / Mizoram (NH-54 corridor)
+        leafletMap = L.map("gisMap", {
+          center: [23.3150, 92.8540],
+          zoom: 11,
+          zoomControl: true,
+          attributionControl: true,
+        });
+
+        // CartoDB Dark Matter tile layer (optimized for dark GIS dashboards)
+        const darkTiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+          subdomains: "abcd",
+          maxZoom: 19,
+        });
+        darkTiles.addTo(leafletMap);
+
+        // Graceful fallback to OpenStreetMap tiles
+        darkTiles.on("tileerror", () => {
+          console.log("CartoDB tile fallback to OSM.");
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18 }).addTo(leafletMap);
+        });
+
+        // Dedicated layer groups
+        corridorsLayerGroup = L.layerGroup().addTo(leafletMap);
+        markerLayerGroup = L.layerGroup().addTo(leafletMap);
+
+        // Mouse hover coordinates HUD
+        leafletMap.on("mousemove", (e) => {
+          const coordsDiv = document.getElementById("mapHoverCoords");
+          if (coordsDiv) {
+            coordsDiv.innerText = `📍 GPS: ${e.latlng.lat.toFixed(4)}° N, ${e.latlng.lng.toFixed(4)}° E`;
+          }
+        });
+
+        // Load background corridor zones
+        loadCorridorZones();
+
+        // If reports are already loaded, render markers now
+        if (allReportsCache && allReportsCache.length > 0) {
+          renderMapHazards();
+        }
+      } catch (err) {
+        console.error("GIS map init error:", err);
+      }
+    }
+
+    async function loadCorridorZones() {
+      try {
+        const resp = await fetch("/api/comms/geospatial/zones");
+        const data = await resp.json();
+
+        data.features.forEach(feat => {
+          if (feat.geometry.type === "LineString") {
+            const latlngs = feat.geometry.coordinates.map(c => [c[1], c[0]]);
+            const polyline = L.polyline(latlngs, {
+              color: "#38bdf8",
+              weight: 4,
+              opacity: 0.85,
+              dashArray: "6, 8",
+            }).bindTooltip(`<strong>🛣️ ${feat.properties.name}</strong><br>Critical: ${feat.properties.critical_km}`, {
+              sticky: true,
+            });
+            corridorsLayerGroup.addLayer(polyline);
+          } else if (feat.geometry.type === "Polygon") {
+            const latlngs = feat.geometry.coordinates[0].map(c => [c[1], c[0]]);
+            const color = feat.properties.risk_level === "CRITICAL" ? "#ef4444" : "#f59e0b";
+            const polygon = L.polygon(latlngs, {
+              color: color,
+              weight: 1.5,
+              fillColor: color,
+              fillOpacity: 0.15,
+            }).bindTooltip(`<strong>⚠️ ${feat.properties.name}</strong><br>Risk: ${feat.properties.risk_level}<br>Fault: ${feat.properties.active_faults}`, {
+              sticky: true,
+            });
+            corridorsLayerGroup.addLayer(polygon);
+          }
+        });
+      } catch (err) {
+        console.warn("Could not load corridor zones:", err);
+      }
+    }
+
+    function renderMapHazards() {
+      if (!leafletMap || !markerLayerGroup) return;
+      markerLayerGroup.clearLayers();
+      mapMarkersMap.clear();
+
+      const filtered = allReportsCache.filter(rep => {
+        if (currentMapFilter === "TELEGRAM") {
+          const isTg = rep.channel === "Telegram Bot" || (rep.sender_phone && rep.sender_phone.startsWith("tg_")) || rep.sender_username;
+          if (!isTg) return false;
+        } else if (currentMapFilter === "CRITICAL") {
+          if (rep.severity !== "CRITICAL") return false;
+        } else if (currentMapFilter === "PENDING") {
+          if (rep.review_status !== "PENDING_REVIEW") return false;
+        } else if (currentMapFilter === "VERIFIED") {
+          if (rep.review_status !== "VERIFIED_APPROVED") return false;
+        }
+        return true;
+      });
+
+      const countBadge = document.getElementById("gisFeatureCount");
+      if (countBadge) {
+        countBadge.innerText = `${filtered.length} Hazards Mapped`;
+      }
+
+      filtered.forEach(rep => {
+        if (rep.lat === null || rep.lng === null || isNaN(rep.lat) || isNaN(rep.lng)) return;
+
+        // Color mapping by severity
+        let color = "#ef4444"; // CRITICAL default
+        if (rep.severity === "HIGH") color = "#f59e0b";
+        else if (rep.severity === "MODERATE") color = "#eab308";
+        else if (rep.severity === "LOW") color = "#10b981";
+
+        const radarIcon = L.divIcon({
+          className: "radar-div-icon",
+          html: `
+            <div class="radar-marker" style="color: ${color};">
+              <div class="radar-ring"></div>
+              <div class="radar-core" style="background: ${color};"></div>
+            </div>
+          `,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
+          popupAnchor: [0, -14],
+        });
+
+        const marker = L.marker([rep.lat, rep.lng], { icon: radarIcon });
+
+        const isTelegram = rep.channel === "Telegram Bot" || (rep.sender_phone && rep.sender_phone.startsWith("tg_")) || rep.sender_username;
+        const displayImg = rep.image_url || "/api/comms/samples/rockfall";
+        const sender = rep.sender_name || (rep.sender_username ? '@' + rep.sender_username : rep.sender_phone);
+
+        const popupHtml = `
+          <div class="map-popup-card">
+            <div class="map-popup-header">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #38bdf8;">${rep.tracking_id}</span>
+              <span class="tag-sev sev-${rep.severity}" style="font-size: 9px; padding: 2px 5px;">${rep.severity}</span>
+            </div>
+            <img src="${displayImg}" class="map-popup-thumb" onclick="openReportModal(${rep.id})" title="Click to inspect high-resolution photo" onerror="this.src='/api/comms/samples/rockfall'" />
+            <div style="font-size: 12px; font-weight: 700; color: #fff;">${rep.classification} (${rep.confidence_pct}%)</div>
+            <div style="font-size: 11px; color: #94a3b8;">
+              ${isTelegram ? '🤖 Telegram ' + (rep.sender_username ? '@' + rep.sender_username : '') : '💬 WhatsApp'} • <strong>${sender}</strong>
+            </div>
+            <div style="font-size: 10px; color: #64748b; font-family: monospace;">
+              📍 ${rep.lat.toFixed(4)}° N, ${rep.lng.toFixed(4)}° E
+            </div>
+            ${rep.assigned_unit ? `<div style="font-size: 10px; color: #34d399;">Unit: ${rep.assigned_unit}</div>` : ''}
+            <button class="btn-assess" style="width: 100%; padding: 6px; font-size: 11px; justify-content: center; margin-top: 4px;" onclick="openReportModal(${rep.id})">
+              🔍 Assess Incident Dossier
+            </button>
+          </div>
+        `;
+
+        marker.bindPopup(popupHtml);
+        markerLayerGroup.addLayer(marker);
+        mapMarkersMap.set(rep.id, marker);
+      });
+    }
+
+    function setMapFilter(filter) {
+      currentMapFilter = filter;
+      document.querySelectorAll(".gis-chip").forEach(c => c.classList.remove("active"));
+      if (filter === "ALL") document.getElementById("chipMapAll").classList.add("active");
+      else if (filter === "TELEGRAM") document.getElementById("chipMapTg").classList.add("active");
+      else if (filter === "CRITICAL") document.getElementById("chipMapCrit").classList.add("active");
+      else if (filter === "PENDING") document.getElementById("chipMapPending").classList.add("active");
+      else if (filter === "VERIFIED") document.getElementById("chipMapApproved").classList.add("active");
+      renderMapHazards();
+    }
+
+    function recenterMizoramMap() {
+      if (leafletMap) {
+        leafletMap.flyTo([23.3150, 92.8540], 11, { duration: 1.2 });
+      }
+    }
+
+    function toggleHazardCorridors() {
+      if (!corridorsLayerGroup || !leafletMap) return;
+      corridorsVisible = !corridorsVisible;
+      const btn = document.getElementById("btnToggleCorridors");
+      if (corridorsVisible) {
+        leafletMap.addLayer(corridorsLayerGroup);
+        btn.innerText = "⚡ Corridors: ON";
+        btn.style.borderColor = "#38bdf8";
+      } else {
+        leafletMap.removeLayer(corridorsLayerGroup);
+        btn.innerText = "⚡ Corridors: OFF";
+        btn.style.borderColor = "#334155";
+      }
+    }
+
+    async function downloadLiveGeoJSON() {
+      try {
+        const resp = await fetch("/api/comms/geospatial/geojson");
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `safeslope_live_feed_${Date.now()}.geojson`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        alert("Could not download GeoJSON feed: " + err.message);
+      }
+    }
+
+    function copyGeoJsonFeedUrl() {
+      const feedUrl = `${window.location.origin}/api/comms/geospatial/geojson`;
+      navigator.clipboard.writeText(feedUrl);
+      alert(`📋 Live RFC 7946 GeoJSON feed URL copied to clipboard!\n\n${feedUrl}\n\nPaste this directly into QGIS (Layer -> Add Vector Layer -> Protocol) or ArcGIS to ingest live crowdsourced hazards.`);
+    }
+
+
+
+
+    async function fetchCapAlerts() {
+      try {
+        const resp = await fetch("/api/comms/cap");
+        const alerts = await resp.json();
+        if (alerts.length > 0) {
+          latestCapIdentifier = alerts[0].identifier;
+          const xmlResp = await fetch(`/api/comms/cap/${latestCapIdentifier}.xml`);
+          const xmlText = await xmlResp.text();
+          document.getElementById("capXmlView").innerText = xmlText;
+        }
+      } catch (e) {
+        console.error("CAP fetch error", e);
+      }
+    }
+
+    function copyCapXml() {
+      const text = document.getElementById("capXmlView").innerText;
+      navigator.clipboard.writeText(text);
+      alert("CAP v1.2 XML copied to clipboard!");
+    }
+
+    function downloadCapXml() {
+      if (!latestCapIdentifier) return;
+      window.open(`/api/comms/cap/${latestCapIdentifier}.xml`, "_blank");
+    }
+
+    // Notification Settings & Algorithm Threshold State
+    let selectedChannels = new Set(["whatsapp", "sms", "telegram", "cap", "siren"]);
+    let notifSettingsExpanded = true;
+    let activeDossierRecord = null;
+
+    function toggleNotifSettings() {
+      const box = document.getElementById("notifSettingsBox");
+      const icon = document.getElementById("notifSettingsToggleIcon");
+      notifSettingsExpanded = !notifSettingsExpanded;
+      box.style.display = notifSettingsExpanded ? "flex" : "none";
+      icon.innerText = notifSettingsExpanded ? "⚙️" : "🔧";
+    }
+
+    function switchNotifTab(tabName) {
+      document.querySelectorAll(".notif-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".notif-tab-content").forEach(c => c.classList.remove("active"));
+
+      if (tabName === "channels") {
+        document.getElementById("tabBtnChannels").classList.add("active");
+        document.getElementById("tabContentChannels").classList.add("active");
+      } else if (tabName === "audience") {
+        document.getElementById("tabBtnAudience").classList.add("active");
+        document.getElementById("tabContentAudience").classList.add("active");
+      } else if (tabName === "thresholds") {
+        document.getElementById("tabBtnThresholds").classList.add("active");
+        document.getElementById("tabContentThresholds").classList.add("active");
+      } else if (tabName === "directives") {
+        document.getElementById("tabBtnDirectives").classList.add("active");
+        document.getElementById("tabContentDirectives").classList.add("active");
+      } else if (tabName === "livedemo") {
+        document.getElementById("tabBtnLivedemo").classList.add("active");
+        document.getElementById("tabContentLivedemo").classList.add("active");
+        checkLiveDemoStatus();
+      }
+    }
+
+    function updateLiveTargetPlaceholder() {
+      const target = document.getElementById("selLiveTestTarget").value;
+      const input = document.getElementById("inputLiveDestination");
+      const tip = document.getElementById("liveTestStatusMsg");
+      if (target === "whatsapp") {
+        input.placeholder = "Enter WhatsApp Phone (+919436122880)";
+        tip.innerHTML = "👉 <em>Enter your WhatsApp phone with country code (e.g. +919436122880) to dispatch live test alert!</em>";
+      } else if (target === "telegram") {
+        input.placeholder = "Enter Telegram Chat ID (e.g. 123456789)";
+        tip.innerHTML = "👉 <em>Tip: Open <a href='https://t.me/safeslope_ner_bot' target='_blank' style='color: #38bdf8;'>@safeslope_ner_bot</a> on Telegram, tap Start, then enter your Chat ID!</em>";
+      } else {
+        input.placeholder = "Enter Mobile Number (+919436122880)";
+        tip.innerHTML = "👉 <em>Enter 10-digit mobile number with +91 country code for cellular SMS delivery.</em>";
+      }
+    }
+
+    async function checkLiveDemoStatus() {
+      try {
+        const resp = await fetch("/api/comms/live-demo/status");
+        const data = await resp.json();
+        
+        // Telegram Badge
+        const tgBadge = document.getElementById("liveTgStatusBadge");
+        if (tgBadge && data.telegram) {
+          if (data.telegram.status === "LIVE_CONNECTED") {
+            tgBadge.innerHTML = `<span class="dot pulse" style="background: #10b981;"></span> @${data.telegram.bot_username || 'safeslope_ner_bot'} (ONLINE)`;
+            tgBadge.style.color = "#34d399";
+            tgBadge.style.borderColor = "#10b981";
+          } else {
+            tgBadge.innerHTML = `<span class="dot" style="background: #f59e0b;"></span> Mode: ${data.telegram.status || 'STANDBY'}`;
+            tgBadge.style.color = "#fbbf24";
+            tgBadge.style.borderColor = "#f59e0b";
+          }
+        }
+
+        // WhatsApp Badge
+        const waBadge = document.getElementById("liveWaStatusBadge");
+        if (waBadge && data.whatsapp) {
+          if (data.whatsapp.configured) {
+            const provName = data.whatsapp.provider === "META_WHATSAPP" ? "Meta Cloud API" : "Twilio WA";
+            waBadge.innerHTML = `<span class="dot pulse" style="background: #25d366;"></span> ${provName} (LIVE)`;
+            waBadge.style.color = "#25d366";
+            waBadge.style.borderColor = "#25d366";
+          } else {
+            waBadge.innerHTML = `<span class="dot" style="background: #38bdf8;"></span> High-Fidelity Simulation`;
+            waBadge.style.color = "#38bdf8";
+            waBadge.style.borderColor = "#0284c7";
+          }
+        }
+      } catch (e) {
+        console.warn("Could not check live demo status", e);
+      }
+    }
+
+
+    function toggleChannel(chan) {
+      const btnIdMap = {
+        whatsapp: "chkWa",
+        sms: "chkSms",
+        telegram: "chkTg",
+        cap: "chkCap",
+        siren: "chkSiren",
+      };
+      const btn = document.getElementById(btnIdMap[chan]);
+      if (selectedChannels.has(chan)) {
+        selectedChannels.delete(chan);
+        btn.classList.remove("active");
+      } else {
+        selectedChannels.add(chan);
+        btn.classList.add("active");
+      }
+    }
+
+    function onThresholdSliderChange() {
+      const warn = document.getElementById("inputThreshWarning").value;
+      const crit = document.getElementById("inputThreshCritical").value;
+      document.getElementById("dispThreshWarning").innerText = `${warn}%`;
+      document.getElementById("dispThreshCritical").innerText = `${crit}%`;
+    }
+
+    async function loadThresholdSettings() {
+      try {
+        const resp = await fetch("/api/comms/thresholds");
+        const data = await resp.json();
+        if (data.settings) {
+          const s = data.settings;
+          if (s.warning_threshold) {
+            document.getElementById("inputThreshWarning").value = s.warning_threshold;
+            document.getElementById("dispThreshWarning").innerText = `${s.warning_threshold}%`;
+          }
+          if (s.critical_threshold) {
+            document.getElementById("inputThreshCritical").value = s.critical_threshold;
+            document.getElementById("dispThreshCritical").innerText = `${s.critical_threshold}%`;
+          }
+          if (typeof s.auto_notify_on_breach === "boolean") {
+            document.getElementById("chkAutoBroadcast").checked = s.auto_notify_on_breach;
+          }
+        }
+      } catch (e) {
+        console.warn("Could not load threshold settings", e);
+      }
+    }
+
+    async function saveThresholdsToBackend() {
+      const warn = parseFloat(document.getElementById("inputThreshWarning").value);
+      const crit = parseFloat(document.getElementById("inputThreshCritical").value);
+      const autoNotify = document.getElementById("chkAutoBroadcast").checked;
+
+      try {
+        const resp = await fetch("/api/comms/thresholds", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            warning_threshold: warn,
+            critical_threshold: crit,
+            auto_notify_on_breach: autoNotify,
+            enabled_channels: Array.from(selectedChannels),
+          }),
+        });
+        const res = await resp.json();
+        alert(`✅ Landslide risk thresholds saved successfully!\nWarning: ${res.settings.warning_threshold}%\nCritical: ${res.settings.critical_threshold}%\nAuto-Broadcast: ${res.settings.auto_notify_on_breach ? 'ENABLED' : 'DISABLED'}`);
+      } catch (e) {
+        alert("Failed to save thresholds: " + e.message);
+      }
+    }
+
+    async function triggerSimulatedBroadcast() {
+      const zone = document.getElementById("zoneSelect").value;
+      const risk = document.getElementById("riskSelect").value;
+      const audience = document.getElementById("selAudience").value;
+      const bypass = document.getElementById("inputBypassRoute").value;
+      const directive = document.getElementById("inputCustomDirective").value;
+
+      try {
+        const resp = await fetch("/api/comms/broadcast/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            zone_name: zone,
+            risk_level: risk,
+            source: "manual_deoc_trigger",
+            // Zero hardcoded numbers: backend dynamically calculates complete geotechnical and spatial profile
+            isolation_data: bypass ? { designated_bypass: bypass } : null,
+            notification_settings: {
+              channels: Array.from(selectedChannels),
+              target_audience: audience,
+              include_bypass: true,
+              custom_instructions: directive || null,
+              severity: risk === "HIGH" ? "Severe" : "Extreme",
+              urgency: "Immediate",
+            }
+          })
+        });
+        const res = await resp.json();
+        fetchCapAlerts();
+        playAlertChime();
+
+        // Push alert into the simulated phone so the user sees it in their vernacular!
+        if (res.sample_message_mizo) {
+          appendMessage("bot", `📢 *BROADCAST WARNING ALERT*\n\n${res.sample_message_mizo}`);
+        }
+
+        openDispatchModal(res);
+      } catch (e) {
+        alert("Broadcast failed: " + e.message);
+      }
+    }
+
+    async function simulateAlgorithmPrediction() {
+      const zone = document.getElementById("zoneSelect").value;
+      const riskVal = parseFloat(document.getElementById("simRiskInput").value) || 84.5;
+      const confVal = parseFloat(document.getElementById("simConfInput").value) || 88.0;
+
+      try {
+        const resp = await fetch("/api/algorithm/landslide-risk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            zone_name: zone,
+            risk_pct: riskVal,
+            confidence_pct: confVal,
+            model_version: "SafeSlope-Landslide-XGBoost-v2",
+            rainfall_mm_24h: 142.5,
+            soil_moisture_pct: 79.2,
+            slope_tilt_deg: 38.5,
+            pore_pressure_kpa: 34.2,
+          }),
+        });
+        const res = await resp.json();
+
+        if (res.notification_triggered && res.dispatch_summary) {
+          playAlertChime();
+          fetchCapAlerts();
+          if (res.dispatch_summary.sample_message_mizo) {
+            appendMessage("bot", `🤖 *ALGORITHM THRESHOLD BREACHED: ${riskVal}%*\n\n${res.dispatch_summary.sample_message_mizo}`);
+          }
+          openDispatchModal(res.dispatch_summary);
+        } else {
+          alert(`🤖 Algorithm Prediction Evaluated:\nRisk: ${res.risk_pct}%\nDerived Level: ${res.derived_risk_level}\nFoS: ${res.factor_of_safety}\nThreshold Breached: ${res.threshold_breached}\nNotification Triggered: ${res.notification_triggered ? 'YES' : 'NO (Below Warning Threshold or Cooldown)'}`);
+        }
+      } catch (e) {
+        alert("Algorithm simulation failed: " + e.message);
+      }
+    }
+
+    function openDispatchModal(record) {
+      activeDossierRecord = record;
+      document.getElementById("dossierCapId").innerText = record.cap_identifier || "CAP-NDMA-LOCAL";
+      document.getElementById("dossierTotal").innerText = record.recipients_count ?? (record.successful_deliveries ?? 0);
+      document.getElementById("dossierWa").innerText = record.breakdown?.whatsapp ?? 0;
+      document.getElementById("dossierSms").innerText = record.breakdown?.sms ?? 0;
+      document.getElementById("dossierTg").innerText = record.breakdown?.telegram ?? 0;
+
+      document.getElementById("dossierZone").innerText = record.zone_name || "Mountain Corridor";
+      const vills = record.targeted_villages && record.targeted_villages.length ? record.targeted_villages.join(", ") : "Chhiahtlang, Serchhip, Keitum";
+      document.getElementById("dossierVillages").innerText = `Villages Reached: ${vills}`;
+
+      const roles = record.roles_reached && record.roles_reached.length ? record.roles_reached.join(", ") : "Aapda Mitra, Village Heads, Citizens";
+      document.getElementById("dossierRoles").innerText = `Roles: ${roles}`;
+
+      const sirenActive = record.breakdown?.village_sirens_activated;
+      document.getElementById("dossierSirenStatus").innerText = sirenActive 
+        ? `📢 Village PA Horns & Sirens: ACTIVATED (${record.breakdown?.siren_stations_triggered ?? 2} stations)` 
+        : "📢 Village Sirens: Standby";
+
+      // Dynamically populate Geotechnical & Spatial Physics badges
+      const iso = record.isolation_metrics || {};
+      const fosVal = record.factor_of_safety !== undefined ? record.factor_of_safety : iso.factor_of_safety;
+      document.getElementById("dossierFos").innerText = fosVal !== undefined ? parseFloat(fosVal).toFixed(2) : "1.12";
+      document.getElementById("dossierEvacHrs").innerText = (record.evacuation_window_hours ?? iso.evacuation_window_hours ?? 4.5) + " hrs";
+      document.getElementById("dossierRadius").innerText = (record.impact_radius_km ?? iso.impact_radius_km ?? 1.4) + " km";
+      document.getElementById("dossierPop").innerText = (iso.affected_population || 27480).toLocaleString();
+      
+      const roads = iso.facilities_cut_off || [];
+      document.getElementById("dossierCutOffRoad").innerText = roads.length ? `Blockage: ${roads[0]}` : "Corridor Segment Cut-off";
+      document.getElementById("dossierBypass").innerText = `Bypass: ${iso.designated_bypass || "Emergency Detour"}`;
+
+      document.getElementById("dossierMsgBox").innerText = record.sample_message_mizo || record.sample_message_en || "Emergency Alert Issued.";
+      document.getElementById("dispatchModalOverlay").style.display = "flex";
+    }
+
+    async function sendLiveDemoTestAlert() {
+      const target = document.getElementById("selLiveTestTarget").value;
+      const dest = document.getElementById("inputLiveDestination").value.trim();
+      const zone = document.getElementById("zoneSelect").value;
+      const statusBox = document.getElementById("liveTestStatusMsg");
+
+      if (!dest) {
+        alert("Please enter a destination (Telegram Chat ID or Phone Number).");
+        return;
+      }
+
+      statusBox.innerHTML = `⏳ Transmitting live alert to <strong>${dest}</strong> via <strong>${target.toUpperCase()}</strong>...`;
+
+      try {
+        const resp = await fetch("/api/comms/live-demo/test-message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            target_type: target,
+            destination: dest,
+            zone_name: zone,
+          }),
+        });
+        const res = await resp.json();
+        if (resp.ok && (res.status === "DELIVERED" || res.status?.includes("DELIVERED") || res.ok)) {
+          statusBox.innerHTML = `✅ <strong>Dispatched!</strong> Status: <span style="color: #34d399;">${res.status || 'SENT'}</span> | Provider: ${res.provider || target} | Message ID: ${res.message_id || res.sid || 'ACK'}`;
+          playAlertChime();
+        } else {
+          statusBox.innerHTML = `⚠️ <strong>Dispatch Report:</strong> ${res.error || res.status || 'Check credentials'}`;
+        }
+      } catch (err) {
+        statusBox.innerHTML = `❌ <strong>Error:</strong> ${err.message}`;
+      }
+    }
+
+
+    function closeDispatchModal() {
+      document.getElementById("dispatchModalOverlay").style.display = "none";
+    }
+
+    function switchReceiptLanguage(lang) {
+      document.querySelectorAll("#dossierLangTabs .notif-tab").forEach(t => t.classList.remove("active"));
+      event.target.classList.add("active");
+      if (!activeDossierRecord) return;
+
+      if (lang === "lus") {
+        document.getElementById("dossierMsgBox").innerText = activeDossierRecord.sample_message_mizo || activeDossierRecord.sample_message_en;
+      } else {
+        document.getElementById("dossierMsgBox").innerText = activeDossierRecord.sample_message_en || activeDossierRecord.sample_message_mizo;
+      }
+    }
+
+    function copyDossierXml() {
+      if (!latestCapIdentifier) return;
+      copyCapXml();
+    }
+
+    function openDossierXml() {
+      if (activeDossierRecord?.cap_identifier) {
+        window.open(`/api/comms/cap/${activeDossierRecord.cap_identifier}.xml`, "_blank");
+      } else {
+        downloadCapXml();
+      }
+    }
+
+
+    // Step-by-step judge demonstration script
+    async function runJudgeDemoFlow() {
+      alert("⚡ Starting Day 4 Judge Demonstration Walkthrough:\n\n1. Citizen reports road crack.\n2. AI model tags and scores it.\n3. Report enters DEOC queue.\n4. Officer reviews & approves.\n5. Risk spike triggers CAP alert.");
+      
+      // Step 1: Citizen types 1
+      await sendSimText("1");
+      await new Promise(r => setTimeout(r, 900));
+
+      // Step 2: Citizen chooses Rockfall
+      await sendSimText("2");
+      await new Promise(r => setTimeout(r, 900));
+
+      // Step 3: Citizen attaches Rockfall Photo
+      document.getElementById("sampleSelect").value = "rockfall";
+      onSampleChange();
+      await sendSimPhoto();
+      await new Promise(r => setTimeout(r, 1000));
+
+      // Step 4: Citizen shares GPS pin
+      await sendSimLocation();
+      await new Promise(r => setTimeout(r, 1000));
+
+      // Step 5: DEOC Officer approves top report
+      const q = await (await fetch("/api/comms/queue")).json();
+      if (q.length > 0 && q[0].review_status === "PENDING_REVIEW") {
+        await reviewReport(q[0].id, "APPROVE");
+      }
+
+      // Step 6: Trigger warning broadcast
+      await triggerSimulatedBroadcast();
+    }
+
+    // Real Phone QR Modal Handlers
+    function openRealPhoneModal() {
+      let targetUrl = window.location.origin + "/mobile";
+      if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        targetUrl = "http://192.168.1.17:8000/mobile";
+      }
+      document.getElementById("customPhoneUrl").value = targetUrl;
+      updateQrCode();
+      document.getElementById("phoneModal").style.display = "flex";
+    }
+
+    function updateQrCode() {
+      const url = document.getElementById("customPhoneUrl").value.trim();
+      if (url) {
+        document.getElementById("qrImg").src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+      }
+    }
+
+    function closeRealPhoneModal() {
+      document.getElementById("phoneModal").style.display = "none";
+    }
+
+    function openMobileTab() {
+      const url = document.getElementById("customPhoneUrl").value.trim() || "/mobile";
+      window.open(url, "_blank");
+    }
+
+    // Initialize Gateway Health Status
+    checkLiveDemoStatus();
+  </script>
+</body>
+</html>

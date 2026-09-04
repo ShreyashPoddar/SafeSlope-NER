@@ -8,3 +8,7 @@ python-multipart
 pyjwt
 google-auth
 requests
+pillow
+numpy
+opencv-python-headless
+

@@ -47,3 +47,6 @@ logs/
 # dotenv
 .env.local
 .env.*.local
+
+# Temporary user uploads
+app/static/uploads/

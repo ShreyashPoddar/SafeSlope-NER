@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SafeSlope WhatsApp Citizen Interface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0b141a;
+      color: #e9edef;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* WhatsApp Header */
+    .header {
+      background: #202c33;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #2a3942;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #128c7e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .header-info {
+      flex: 1;
+    }
+
+    .header-info h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e9edef;
+    }
+
+    .header-info p {
+      font-size: 11px;
+      color: #25d366;
+    }
+
+    .lang-pill {
+      background: #2a3942;
+      color: #38bdf8;
+      border: 1px solid #3b4a54;
+      border-radius: 12px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Chat Messages Area */
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background-image: radial-gradient(#1e293b 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+
+    .bubble {
+      max-width: 85%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      line-height: 1.45;
+      position: relative;
+      word-break: break-word;
+    }
+
+    .bubble.bot {
+      background: #202c33;
+      color: #e9edef;
+      align-self: flex-start;
+      border-top-left-radius: 2px;
+    }
+
+    .bubble.user {
+      background: #005c4b;
+      color: #e9edef;
+      align-self: flex-end;
+      border-top-right-radius: 2px;
+    }
+
+    .meta {
+      font-size: 10px;
+      color: #8696a0;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .media-thumb {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* Action bar */
+    .action-bar {
+      background: #202c33;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+      border-top: 1px solid #2a3942;
+    }
+
+    .chips-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .chip {
+      background: #2a3942;
+      color: #d1d7db;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 16px;
+      white-space: nowrap;
+      border: 1px solid #3b4a54;
+      cursor: pointer;
+    }
+    .chip:active {
+      background: #00a884;
+      color: #fff;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .text-input {
+      flex: 1;
+      background: #2a3942;
+      border: 1px solid #37474f;
+      border-radius: 22px;
+      padding: 10px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .btn-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #00a884;
+      border: none;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .btn-circle:active {
+      transform: scale(0.95);
+    }
+
+    /* Camera Input Hidden */
+    #cameraInput { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="avatar">🛡️</div>
+    <div class="header-info">
+      <h1>SafeSlope Emergency Bot</h1>
+      <p>District Disaster Authority (DDMA)</p>
+    </div>
+    <select id="langPicker" class="lang-pill" onchange="changeLanguage()">
+      <option value="en">🌐 English</option>
+      <option value="lus">🌄 Mizo</option>
+      <option value="as">🇮🇳 অসমীয়া</option>
+      <option value="kha">⛰️ Khasi</option>
+      <option value="mni">🌿 ꯃꯩꯇꯩ</option>
+      <option value="bn">🌾 বাংলা</option>
+    </select>
+  </div>
+
+  <!-- Chat Log -->
+  <div class="chat-box" id="chat">
+    <div class="bubble bot">
+      🚨 <strong>SafeSlope-NER Citizen Network</strong><br>
+      Zero-barrier landslide early warning & community reporting.<br><br>
+      👋 Welcome! Tap a quick action below or type a message:<br>
+      1️⃣ 📸 <strong>Report Slope Hazard</strong><br>
+      2️⃣ ⛺ <strong>Safe Shelters & Bypass Routes</strong><br>
+      3️⃣ 🆘 <strong>Emergency SOS / Call DEOC</strong>
+      <div class="meta">Verified DDMA Bot</div>
+    </div>
+  </div>
+
+  <!-- Bottom Input Bar -->
+  <div class="action-bar">
+    <div class="chips-row">
+      <div class="chip" onclick="sendQuick('1')">1️⃣ Report Hazard</div>
+      <div class="chip" onclick="sendQuick('2')">2️⃣ Safe Shelters</div>
+      <div class="chip" onclick="sendQuick('3')">3️⃣ Emergency SOS</div>
+      <div class="chip" onclick="sendQuick('0')">🔄 Reset Menu</div>
+    </div>
+
+    <div class="input-row">
+      <!-- Camera Button: Triggers Real Phone Camera -->
+      <label for="cameraInput" class="btn-circle" title="Snap live camera photo">📸</label>
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleRealCamera(event)" />
+
+      <!-- GPS Button: Triggers Real Phone Geolocation -->
+      <button class="btn-circle" title="Send live GPS pin" onclick="sendRealGPS()">📍</button>
+
+      <input type="text" id="userInput" class="text-input" placeholder="Type message..." onkeypress="onEnter(event)" />
+      <button class="btn-circle" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const userPhone = "+91" + Math.floor(9000000000 + Math.random() * 900000000);
+
+    function append(sender, text, imgData = null) {
+      const chat = document.getElementById("chat");
+      const b = document.createElement("div");
+      b.className = `bubble ${sender}`;
+
+      let imgHtml = "";
+      if (imgData) {
+        imgHtml = `<img src="${imgData}" class="media-thumb" alt="Photo" />`;
+      }
+      const formatted = text.replace(/\*(.*?)\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
+      b.innerHTML = `${imgHtml}${formatted}<div class="meta">Just now</div>`;
+      chat.appendChild(b);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function sendMessage(overrideText = null, extraPayload = {}) {
+      const input = document.getElementById("userInput");
+      const text = overrideText !== null ? overrideText : input.value.trim();
+      if (!text && !extraPayload.image_base64 && !extraPayload.lat) return;
+      input.value = "";
+
+      if (text) {
+        append("user", text, extraPayload.image_base64);
+      }
+
+      try {
+        const resp = await fetch("/api/comms/simulate/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from_phone: userPhone,
+            body: text || "Media submission",
+            ...extraPayload
+          })
+        });
+        const data = await resp.json();
+        if (data.reply) {
+          append("bot", data.reply);
+        }
+      } catch (err) {
+        append("bot", "⚠️ Network error. Please retry.");
+      }
+    }
+
+    function sendQuick(val) {
+      sendMessage(val);
+    }
+
+    function onEnter(e) {
+      if (e.key === "Enter") sendMessage();
+    }
+
+    // Real Phone Camera Capture
+    function handleRealCamera(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      append("user", "📸 Snapping photo from real camera...", null);
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const b64 = evt.target.result;
+        sendMessage("Photo attached from smartphone camera", { image_base64: b64 });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Real Phone GPS Chip Capture
+    function sendRealGPS() {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your mobile browser.");
+        return;
+      }
+
+      append("user", "📍 Fetching device GPS coordinates...", null);
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          sendMessage(`📍 Real Location Pin (${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E)`, { lat: lat, lng: lng });
+        },
+        (err) => {
+          // Fallback to sample corridor coordinates if user denies location permission
+          alert("Could not retrieve GPS (Permission denied or timeout). Using Serchhip corridor coordinates.");
+          sendMessage("📍 Location: Serchhip NH-54 corridor", { lat: 23.3102, lng: 92.8524 });
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+
+    async function changeLanguage() {
+      const lang = document.getElementById("langPicker").value;
+      const langMap = { "en": "1", "as": "2", "kha": "3", "lus": "4", "mni": "5", "bn": "6" };
+      await sendMessage("4");
+      await sendMessage(langMap[lang]);
+    }
+  </script>
+</body>
+</html>
