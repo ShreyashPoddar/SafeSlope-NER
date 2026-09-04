@@ -17,6 +17,7 @@ import struct
 import time
 from datetime import datetime, timezone, timedelta
 from typing import Optional
+import crcmod.predefined
 
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Request, status
 

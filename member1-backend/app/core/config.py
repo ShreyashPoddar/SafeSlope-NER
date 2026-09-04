@@ -6,15 +6,7 @@ Section 7.1-7.2 (hysteresis / burn-in constants), Section 5.3 (H3 spatial)
 from __future__ import annotations
 import os
 from functools import lru_cache
-try:
-    from pydantic_settings import BaseSettings, SettingsConfigDict
-except ImportError:
-    class BaseSettings:
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-    def SettingsConfigDict(**kwargs):
-        return {}
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -45,6 +37,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRY_SECONDS: int = 43200  # 12 hours
     GOOGLE_CLIENT_ID: str = "your-google-client-id.apps.googleusercontent.com"
+    GITHUB_CLIENT_ID: str = ""
+    GITHUB_CLIENT_SECRET: str = ""
 
     # HMAC-SHA256 gateway authentication key (Section 3.4)
     # All LoRa concentrator gateways must sign binary payloads with this secret.
@@ -148,6 +142,35 @@ class Settings(BaseSettings):
     ECMWF_BACKUP_API: str = "https://api.open-meteo.com/v1"
     CIRCUIT_BREAKER_FAIL_MAX: int = 3
     CIRCUIT_BREAKER_RESET_TIMEOUT: int = 60     # Seconds before half-open retry
+
+    # ─── Satellite Earth Observation & Remote Sensing APIs (Section 2.2) ───────
+    # Google Earth Engine (GEE)
+    GEE_SERVICE_ACCOUNT: str = ""
+    GEE_SERVICE_ACCOUNT_KEY_PATH: str = "credentials/gee-key.json"
+    GEE_PROJECT_ID: str = ""
+
+    # Copernicus Data Space Ecosystem (CDSE) / Sentinel Hub
+    CDSE_CLIENT_ID: str = ""
+    CDSE_CLIENT_SECRET: str = ""
+    SENTINEL_HUB_CLIENT_ID: str = ""
+    SENTINEL_HUB_CLIENT_SECRET: str = ""
+    SENTINEL_HUB_INSTANCE_ID: str = ""
+
+    # NASA Earthdata & Alaska Satellite Facility (ASF DAAC)
+    EARTHDATA_USERNAME: str = ""
+    EARTHDATA_PASSWORD: str = ""
+    EARTHDATA_BEARER_TOKEN: str = ""
+
+    # ISRO MOSDAC & Bhuvan
+    MOSDAC_USER_EMAIL: str = ""
+    MOSDAC_API_TOKEN: str = ""
+    BHUVAN_API_TOKEN: str = ""
+
+    # Planet Labs (PlanetScope & SkySat)
+    PLANET_API_KEY: str = ""
+
+    # OpenTopography (Global DEM Subsetting)
+    OPENTOPOGRAPHY_API_KEY: str = ""
 
     # ─── Actuation SLA (Section 11) ────────────────────────────────────────────
     LORA_BARRIER_SLA_MS: int = 1500             # < 1.5s to physical barrier drop

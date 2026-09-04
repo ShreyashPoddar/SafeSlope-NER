@@ -660,3 +660,32 @@ class QuarantineEntry(BaseModel):
     source_ip: Optional[str]
     node_id_raw: Optional[int]
     received_at: datetime
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUTHENTICATION PAYLOADS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class GoogleLoginPayload(BaseModel):
+    id_token: str
+
+
+class GitHubLoginPayload(BaseModel):
+    code: str
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VILLAGES & ZONES PAYLOADS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class VillagePayload(BaseModel):
+    village_name: str
+    lat: float
+    lng: float
+    population: int
+
+
+class RiskZonePayload(BaseModel):
+    zone_name: str
+
+

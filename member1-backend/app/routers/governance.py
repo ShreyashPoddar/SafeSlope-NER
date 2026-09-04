@@ -121,6 +121,12 @@ async def draft_evacuation_order(
         },
     )
 
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate evacuation order record in database",
+        )
+
     # Record to cryptographic audit ledger
     await record_audit_event(
         AuditPayloadType.SOP_ORDER,

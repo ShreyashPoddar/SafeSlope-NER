@@ -1,9 +1,8 @@
 import os
+from app.core.config import get_settings
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://resiliner_user:resiliner_pass@db:5432/resiliner",
-)
+DATABASE_URL = get_settings().DATABASE_URL
+
 
 try:
     from databases import Database
