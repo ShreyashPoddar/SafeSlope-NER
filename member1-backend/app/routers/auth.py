@@ -138,3 +138,110 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     """Lets the dashboard check who's currently logged in / whether the session is still valid."""
     return current_user
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DEMO LOGIN — Role-based login for SIH hackathon demonstration
+# Creates/fetches a user record and returns a real JWT with role metadata.
+# This avoids the need for Google/GitHub OAuth during demo flows.
+# ─────────────────────────────────────────────────────────────────────────────
+
+from pydantic import BaseModel
+from typing import Optional as _Optional
+
+class DemoLoginPayload(BaseModel):
+    portal_type: str = "user"
+    persona: str = "resident"
+    sub_role: _Optional[str] = None
+    email: _Optional[str] = None
+    name: _Optional[str] = None
+    district: _Optional[str] = None
+
+
+# Maps frontend persona/sub_role → backend RBAC role string
+_PERSONA_TO_ROLE = {
+    "resident": "ROLE_PUBLIC",
+    "tourist": "ROLE_PUBLIC",
+    "role_admin": "ROLE_OPERATOR",
+    "head_admin": "ROLE_MAGISTRATE",
+}
+
+_DEMO_USERS = {
+    "resident": {"name": "Lalrinpuia Sailo", "email": "resident@safeslope.demo"},
+    "tourist": {"name": "Alex Traveler", "email": "tourist@safeslope.demo"},
+    "head_admin": {"name": "Smt. Zoramthangi Lunglei, IAS", "email": "commissioner@safeslope.demo"},
+    "role_admin": {"name": "Dr. Lalrinpuia Sailo, IAS", "email": "nodal.officer@safeslope.demo"},
+}
+
+
+@router.post("/demo-login", tags=["auth"])
+async def demo_login(payload: DemoLoginPayload):
+    """
+    Demo login for SIH hackathon.
+    Accepts a role/sub-role selection and returns a real JWT token.
+    Upserts a synthetic user into the users table so the session is traceable.
+    """
+    defaults = _DEMO_USERS.get(payload.persona, _DEMO_USERS["resident"])
+    name = payload.name or defaults["name"]
+    email = payload.email or defaults["email"]
+    role = _PERSONA_TO_ROLE.get(payload.persona, "ROLE_PUBLIC")
+
+    # Upsert demo user into users table
+    user = await database.fetch_one(
+        "SELECT * FROM users WHERE email = :email",
+        {"email": email},
+    )
+    if not user:
+        user = await database.fetch_one(
+            """INSERT INTO users (google_sub, email, name, role)
+               VALUES (:sub, :email, :name, :role)
+               RETURNING id, google_sub, email, name, role""",
+            {
+                "sub": f"demo_{payload.persona}",
+                "email": email,
+                "name": name,
+                "role": role,
+            },
+        )
+    else:
+        # Ensure role is up to date for returning demo users
+        await database.execute(
+            "UPDATE users SET role = :role WHERE email = :email",
+            {"role": role, "email": email},
+        )
+        user = await database.fetch_one(
+            "SELECT * FROM users WHERE email = :email", {"email": email}
+        )
+
+    # Build JWT with richer claims so the frontend can hydrate UserProfile
+    import jwt as _jwt
+    import time as _time
+    jwt_secret = settings.JWT_SECRET
+    jwt_algo = settings.JWT_ALGORITHM
+    district = payload.district or ("NER Command Center" if payload.persona == "head_admin" else "Hunthar-Sonapur Sector")
+
+    token_payload = {
+        "sub": str(user["id"]),
+        "email": email,
+        "role": role,
+        "name": name,
+        "persona": payload.persona,
+        "portal_type": payload.portal_type,
+        "sub_role": payload.sub_role,
+        "district_or_corridor": district,
+        "exp": int(_time.time()) + settings.JWT_EXPIRY_SECONDS,
+    }
+    token = _jwt.encode(token_payload, jwt_secret, algorithm=jwt_algo)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "email": email,
+            "name": name,
+            "role": role,
+            "persona": payload.persona,
+            "portal_type": payload.portal_type,
+            "sub_role": payload.sub_role,
+            "district_or_corridor": district,
+        },
+    }

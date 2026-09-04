@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Camera, 
-  MapPin, 
-  RefreshCw, 
-  AlertTriangle, 
-  CheckCircle2, 
-  ArrowLeft, 
+import {
+  Camera,
+  MapPin,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle2,
+  ArrowLeft,
   Send
 } from 'lucide-react';
 import type { CitizenIncident } from '../types/dashboard';
+import { submitReport } from '../api/reports';
 
 interface CitizenReportProps {
   onBackToDashboard?: () => void;
@@ -27,6 +28,10 @@ export const CitizenReport: React.FC<CitizenReportProps> = ({
   const [locating, setLocating] = useState<boolean>(false);
   const [locError, setLocError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [backendReportId, setBackendReportId] = useState<string | null>(null);
+  const [aiClassification, setAiClassification] = useState<string | null>(null);
 
   // Auto-fetch Geolocation on Component Mount
   const fetchLocation = () => {
@@ -71,15 +76,18 @@ export const CitizenReport: React.FC<CitizenReportProps> = ({
     }
   };
 
-  // Handle Form Submission
-  const handleSubmit = (e: React.FormEvent) => {
+  // Handle Form Submission — POST to backend, fallback to local state
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload: CitizenIncident = {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const localPayload: CitizenIncident = {
       id: `report-${Date.now()}`,
       lat: location ? location.lat : 29.8512,
       lng: location ? location.lng : 80.5367,
-      photoUrl: photoPreview || 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=600&q=80',
-      tag: hazardType.split('/')[0].trim(),
+      photoUrl: photoPreview || '/bg_rolling_hills.png',
+      tag: hazardType.split('/')[0].trim() as CitizenIncident['tag'],
       confidence: 0.95,
       timestamp: `${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST Today`,
       status: 'pending',
@@ -88,8 +96,27 @@ export const CitizenReport: React.FC<CitizenReportProps> = ({
       description
     };
 
-    console.log('📢 Citizen Incident Geotagged Payload:', payload);
-    if (onSubmitReport) onSubmitReport(payload);
+    try {
+      const res = await submitReport({
+        submitter_phone: reporterPhone || '+91 98765 00000',
+        submitter_role: 'citizen',
+        latitude: location?.lat ?? 29.8512,
+        longitude: location?.lng ?? 80.5367,
+        image_url: photoPreview || '/bg_rolling_hills.png',
+        description,
+      });
+      setBackendReportId(String(res.report_id));
+      setAiClassification(`${res.classification} (${Math.round(res.confidence_pct)}% confidence)`);
+      localPayload.id = String(res.report_id);
+      localPayload.confidence = res.confidence_pct / 100;
+      localPayload.tag = res.classification as CitizenIncident['tag'];
+    } catch {
+      // Backend unreachable — proceed with optimistic local state
+    } finally {
+      setIsSubmitting(false);
+    }
+
+    if (onSubmitReport) onSubmitReport(localPayload);
     setIsSubmitted(true);
   };
 
@@ -165,6 +192,18 @@ export const CitizenReport: React.FC<CitizenReportProps> = ({
                 <span className="text-slate-600">Status:</span>
                 <span className="font-bold text-emerald-700">Pending Moderation</span>
               </div>
+              {backendReportId && (
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Report ID:</span>
+                  <span className="font-bold text-slate-900">#{backendReportId}</span>
+                </div>
+              )}
+              {aiClassification && (
+                <div className="flex justify-between">
+                  <span className="text-slate-600">AI Classification:</span>
+                  <span className="font-bold text-emerald-700">{aiClassification}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-slate-600">Hazard Type:</span>
                 <span className="font-bold text-slate-900">{hazardType}</span>
